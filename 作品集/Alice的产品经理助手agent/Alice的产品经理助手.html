@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alice的产品助手 | Agent</title>
+    <style>
+        :root {
+            --bg: #fffaf5; --card: #ffffff; --primary: #ff7b9c; --primary-light: #ffe4ec;
+            --text-main: #4a4a4a; --text-sub: #777777; --border: #ffe0e6;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background-color: var(--bg); color: var(--text-main); 
+            font-family: system-ui, sans-serif; line-height: 1.8; overflow-x: hidden; position: relative;
+        }
+
+        /* 可爱浮动装饰 */
+        .deco { position: absolute; font-size: 2rem; opacity: 0.3; pointer-events: none; z-index: 0; animation: float 6s ease-in-out infinite; }
+        .deco-1 { top: 10%; left: 5%; animation-delay: 0s; }
+        .deco-2 { top: 30%; right: 8%; animation-delay: 2s; }
+        .deco-3 { bottom: 20%; left: 10%; animation-delay: 4s; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        .container { max-width: 720px; margin: 0 auto; padding: 60px 20px; position: relative; z-index: 1; }
+        
+        .tag { display: inline-block; padding: 6px 14px; background: var(--primary-light); color: var(--primary); border-radius: 20px; font-size: 0.85rem; font-weight: 700; margin-bottom: 20px; }
+        h1 { font-size: 2.5rem; margin-bottom: 16px; line-height: 1.3; color: #ff5c8a; }
+        .subtitle { font-size: 1.1rem; color: var(--text-sub); margin-bottom: 30px; }
+        
+        .btn-group { display: flex; gap: 12px; margin-bottom: 50px; flex-wrap: wrap; }
+        .btn { padding: 12px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; font-size: 0.95rem; transition: 0.3s; display: inline-block; }
+        .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(255,123,156,0.4); }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(255,123,156,0.5); }
+        .btn-outline { background: var(--card); color: var(--primary); border: 2px dashed var(--primary); }
+        .btn-outline:hover { background: var(--primary-light); }
+
+        .cute-card { 
+            background: var(--card); border: 2px solid var(--border); border-radius: 20px; 
+            padding: 30px; margin-bottom: 24px; transition: 0.3s; 
+        }
+        .cute-card:hover { box-shadow: 0 8px 24px rgba(255,123,156,0.15); transform: translateY(-4px); border-color: var(--primary); }
+        
+        .card-label { display: inline-block; padding: 4px 12px; background: var(--primary-light); color: var(--primary); border-radius: 10px; font-size: 0.8rem; font-weight: 800; margin-bottom: 12px; }
+        .card-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 10px; color: #ff5c8a; }
+        .card-desc { color: var(--text-sub); font-size: 0.95rem; }
+        .card-desc strong { color: var(--text-main); }
+
+        /* 极客自测验收数据区 */
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-top: 16px; }
+        .metric-item { background: #fff; border: 1px dashed var(--border); border-radius: 12px; padding: 16px; text-align: center; transition: 0.3s; }
+        .metric-item:hover { border-color: var(--primary); background: var(--primary-light); }
+        .metric-icon { font-size: 1.5rem; margin-bottom: 8px; }
+        .metric-title { font-size: 0.9rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+        .metric-desc { font-size: 0.8rem; color: var(--text-sub); }
+
+        .code-window { background: #2d2d2d; border-radius: 12px; margin-top: 16px; overflow: hidden; font-family: monospace; font-size: 0.85rem; color: #ccc; border: 2px solid #444; }
+        .code-header { background: #1e1e1e; padding: 8px 12px; font-size: 0.75rem; color: #888; display: flex; justify-content: space-between; }
+        .code-body { padding: 16px; overflow-x: auto; }
+        .del { color: #ff7b72; text-decoration: line-through; opacity: 0.8; }
+        .add { color: #7ee787; }
+
+        .cute-divider { text-align: center; margin: 40px 0; color: var(--primary); font-size: 1.2rem; letter-spacing: 8px; opacity: 0.6; }
+
+        .video-wrap {
+            margin-top: 16px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #111;
+            border: 2px solid var(--border);
+        }
+        .video-wrap video {
+            display: block;
+            width: 100%;
+            height: auto;
+            vertical-align: middle;
+            background: #000;
+        }
+        .cute-card.demo-card:hover,
+        .cute-card.process-card:hover { transform: none; }
+
+        /* Cursor 协作时间线 */
+        .process-intro { margin-bottom: 20px; }
+        .process-list { list-style: none; margin-top: 8px; }
+        .process-item {
+            position: relative;
+            padding: 18px 18px 18px 64px;
+            margin-bottom: 14px;
+            background: #fffaf8;
+            border: 1px dashed var(--border);
+            border-radius: 16px;
+            transition: 0.3s;
+        }
+        .process-item:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            border-style: solid;
+        }
+        .process-item:last-child { margin-bottom: 0; }
+        .step-badge {
+            position: absolute;
+            left: 14px;
+            top: 18px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(255,123,156,0.35);
+        }
+        .step-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #ff5c8a;
+            margin-bottom: 6px;
+        }
+        .step-body {
+            color: var(--text-sub);
+            font-size: 0.92rem;
+        }
+        .step-body strong { color: var(--text-main); }
+        .takeaway-box {
+            margin-top: 20px;
+            padding: 16px 18px;
+            border-radius: 14px;
+            background: var(--primary-light);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            font-size: 0.92rem;
+        }
+        .takeaway-box strong { color: #ff5c8a; }
+        .inline-links { margin-top: 14px; font-size: 0.9rem; color: var(--text-sub); }
+        .inline-links a { color: var(--primary); font-weight: 700; text-decoration: none; }
+        .inline-links a:hover { text-decoration: underline; }
+
+        /* Cursor 真实 Prompt 截图 */
+        .shot-intro {
+            font-size: 0.92rem;
+            color: var(--text-sub);
+            margin: 4px 0 14px;
+        }
+        .shot-gallery { margin: 0 0 22px; }
+        .shot-item {
+            margin-bottom: 16px;
+            padding: 18px;
+            background: #fffaf8;
+            border: 1px dashed var(--border);
+            border-radius: 16px;
+            transition: 0.3s;
+        }
+        .shot-item:last-child { margin-bottom: 0; }
+        .shot-item:hover {
+            border-color: var(--primary);
+            background: #fff;
+            border-style: solid;
+            box-shadow: 0 6px 18px rgba(255,123,156,0.12);
+        }
+        .shot-head {
+            position: relative;
+            padding-left: 50px;
+            min-height: 36px;
+            margin-bottom: 8px;
+        }
+        .shot-head .step-badge { top: 0; left: 0; }
+        .shot-kicker {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 2px;
+        }
+        .shot-img-wrap {
+            margin: 12px 0 10px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 16px rgba(255,123,156,0.12);
+            background: #fff;
+        }
+        .shot-img-wrap img {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+        }
+        .shot-caption {
+            color: var(--text-sub);
+            font-size: 0.9rem;
+        }
+        .shot-caption strong { color: var(--text-main); }
+    </style>
+</head>
+<body>
+
+    <div class="deco deco-1">🌸</div>
+    <div class="deco deco-2">✨</div>
+    <div class="deco deco-3">💕</div>
+
+<div class="container">
+    <div class="tag">Cursor Agent · Alice的产品助手</div>
+    <h1>Alice的产品助手 🪄</h1>
+    <p class="subtitle">用产品思维指挥 AI，把「种草灵感制造机」从痛点发现做到独立上线。一个拒绝 AI 瞎编、专治“输入困难症”的小红书文案生成器案例。</p>
+    
+    <div class="btn-group">
+        <a href="https://xhs-ai-mvp.vercel.app" target="_blank" class="btn btn-primary"> 在线体验</a>
+        <a href="https://github.com/suy79387-glitch/xhs-ai-mvp" target="_blank" class="btn btn-outline"> GitHub 源码</a>
+    </div>
+
+    <!-- STAR 1 -->
+    <div class="cute-card">
+        <div class="card-label"> 情境 & 任务</div>
+        <div class="card-title">为什么我要做这个工具？</div>
+        <div class="card-desc">
+            作为独立开发者，我经常需要写小红书文案。但我发现市面上的 AI 工具都有两个致命痛点：<strong>一是“输入困难症”</strong>，面对空白文本框不知道怎么写 Prompt；<strong>二是“AI 幻觉”</strong>，一旦漏填信息，AI 就开始一本正经地瞎编。
+            <br><br>
+            我的任务是：<strong>用产品思维重构 AI 交互</strong>，做一个能真正帮人干活，而不是只会陪聊天的生产力工具。
+        </div>
+    </div>
+
+    <div class="cute-divider">~ ~ ~ ✿ ~ ~ ~</div>
+
+    <!-- STAR 2 -->
+    <div class="cute-card">
+        <div class="card-label">️ 行动</div>
+        <div class="card-title">我是如何解决痛点的？</div>
+        <div class="card-desc">
+            我实施了 <strong>Input Engineering（输入工程前置化）</strong>。把复杂的 Prompt 封装成结构化表单，用户只需像填问卷一样勾选，AI 就能“看碟下菜”。
+            <br><br>
+            同时，我在底层加入了<strong>防幻觉拦截机制</strong>。当检测到关键信息不足时，系统会拒绝瞎编，并高亮提示补充，从源头保证可靠性。
+        </div>
+    </div>
+
+
+    <div class="cute-divider">~ ~ ~ ✿ ~ ~ ~</div>
+
+    <!-- Cursor 共创：工程判断力叙事（面试向） -->
+    <div class="cute-card process-card">
+        <div class="card-label">协作过程 · Cursor</div>
+        <div class="card-title">我如何用 Cursor 把 MVP 推到可演示？</div>
+        <div class="card-desc process-intro">
+            对我来说，Cursor 不是「自动写完产品」的黑盒，而是<strong>可指挥的工程搭档</strong>。方向、取舍和验收标准始终由我定；AI 负责加速实现、对照文档排查、补齐样板代码。面试时我更想讲清楚「为什么这么做」，而不是「聊了多少轮」——所以先放三次真实 Prompt 截图作证据，再展开完整判断路径。
+        </div>
+
+        <p class="shot-intro">下面三张是当时真实的 Cursor 对话截图，按时间顺序：先定界面骨架，再接通流式接口，最后把输出收成 JSON 与缺失提醒。它们要证明的是<strong>产品判断和工程指令是否写清楚</strong>，而不是「AI 替我写了代码」。</p>
+
+        <div class="shot-gallery">
+            <figure class="shot-item">
+                <div class="shot-head">
+                    <span class="step-badge">01</span>
+                    <div class="shot-kicker">产品判断 · 工程指令清晰度</div>
+                    <div class="step-title">定栈 + 左右栏骨架</div>
+                </div>
+                <div class="shot-img-wrap">
+                    <img src="./Alice的产品经理助手-assets/cursor-01-scaffold.png" alt="Cursor 对话截图：用 Next.js App Router、Tailwind、shadcn/ui 搭建左右栏 MVP 界面" width="720" loading="lazy">
+                </div>
+                <figcaption class="shot-caption">
+                    Prompt 里我先锁死了技术栈（<strong>Next.js App Router + Tailwind + shadcn/ui</strong>）和交互形态：<strong>左输入商品信息 / 右输出种草文案、一键生成</strong>。这不是「帮我写个网站」，而是把 MVP 边界写成可执行指令——做什么、用什么、左右栏各承担什么。
+                </figcaption>
+            </figure>
+
+            <figure class="shot-item">
+                <div class="shot-head">
+                    <span class="step-badge">02</span>
+                    <div class="shot-kicker">产品判断 · 工程指令清晰度</div>
+                    <div class="step-title">流式 API + System Prompt 约束</div>
+                </div>
+                <div class="shot-img-wrap">
+                    <img src="./Alice的产品经理助手-assets/cursor-02-streaming.png" alt="Cursor 对话截图：用 OpenAI 兼容接口对接 DeepSeek，流式生成并禁止编造参数" width="720" loading="lazy">
+                </div>
+                <figcaption class="shot-caption">
+                    我要求用 <strong>OpenAI 兼容接口</strong>对接 DeepSeek / 通义，走 <strong>POST /api/generate</strong> 流式回到右侧输出区；同时把 System Prompt 写成「资深电商运营」，<strong>禁止编造参数</strong>，信息不足就标「缺失参数，请人工补充」。产品规则（不瞎编）被写进了接口约束。
+                </figcaption>
+            </figure>
+
+            <figure class="shot-item">
+                <div class="shot-head">
+                    <span class="step-badge">03</span>
+                    <div class="shot-kicker">产品判断 · 工程指令清晰度</div>
+                    <div class="step-title">结构化 JSON + 黄色缺失警告</div>
+                </div>
+                <div class="shot-img-wrap">
+                    <img src="./Alice的产品经理助手-assets/cursor-03-json.png" alt="Cursor 对话截图：把模型输出改为 title、content、missing_params 的 JSON，并在缺失时显示黄色警告" width="720" loading="lazy">
+                </div>
+                <figcaption class="shot-caption">
+                    为了让 Demo「更像真实产品」，我把输出改成 <strong>title / content / missing_params</strong> 的 JSON，并约定 <strong>missing_params 非空时在顶部出黄色警告框</strong>。这是在定义数据契约和失败态 UI，而不只是让文案写得更好看。
+                </figcaption>
+            </figure>
+        </div>
+
+        <p class="shot-intro">对应到产品决策上，完整路径是这样走的：</p>
+
+        <ol class="process-list">
+            <li class="process-item">
+                <span class="step-badge">01</span>
+                <div class="step-title">定问题边界：可演示，而不是大而全</div>
+                <div class="step-body">
+                    电商运营写小红书文案很耗时，但我不想一上来做「全能 Agent」。我把目标压成一句话：<strong>做一个面试官 30 秒能点开、能生成、能看懂设计取舍的 AI MVP</strong>。范围锁死在「结构化输入 → 流式种草文案 → 缺失提醒 → 可复制 / 可回看」，其余功能一律延后。
+                </div>
+            </li>
+            <li class="process-item">
+                <span class="step-badge">02</span>
+                <div class="step-title">选栈：先交付，再炫技</div>
+                <div class="step-body">
+                    我选了 <strong>Next.js App Router + Tailwind + shadcn/ui</strong>：组件现成、部署路径清晰、和 Vercel AI SDK 契合。Cursor 帮我搭脚手架与 UI 骨架，但我主动砍掉了过度抽象——MVP 阶段优先「左右栏一屏完成任务」，而不是先堆设计系统。
+                </div>
+            </li>
+            <li class="process-item">
+                <span class="step-badge">03</span>
+                <div class="step-title">产品设计迭代：把 Prompt 藏进表单</div>
+                <div class="step-body">
+                    交互从「空白对话框」改成<strong>左输入 / 右输出</strong>：四字段结构化信息（商品名、卖点、人群、价格）+ 文案风格下拉。输出侧约定 JSON（标题、正文、missing_params），再做成 Markdown 预览、纯文本复制和 LocalStorage 历史。每一步都是在回答同一个问题：用户还要不要自己写 Prompt？
+                </div>
+            </li>
+            <li class="process-item">
+                <span class="step-badge">04</span>
+                <div class="step-title">接入模型：从「兼容层」收敛到 DeepSeek</div>
+                <div class="step-body">
+                    初期我按 OpenAI-compatible 思路接流式生成，便于换模型；落地时明确切到 <strong>DeepSeek + Vercel AI SDK（streamText）</strong>，并在 README 写清：面试官要看真演示，必须配置真实 Key 再 Redeploy。关键决策是<strong>流式 + 结构化 JSON</strong>——边生成边预览，同时用 missing_params 把「信息不够」暴露给用户，而不是假装写完了。
+                </div>
+            </li>
+            <li class="process-item">
+                <span class="step-badge">05</span>
+                <div class="step-title">踩坑与排查：我主导，Cursor 协助定位</div>
+                <div class="step-body">
+                    真实卡点包括：<strong>401 / 402</strong>（Key 无效或余额不足）、环境变量未生效、AI SDK 7 不再接受 messages 里的旧 system 写法（改用 <strong>instructions</strong>）、以及空流时报「模型未返回有效内容」。排查方式是分层验证——先确认 env 与鉴权，再对照 SDK 文档改传参，最后保证空响应变成可读错误而不是静默失败。Cursor 加速了对照源码与补丁，但<strong>复现路径和验收标准是我定的</strong>。
+                </div>
+            </li>
+            <li class="process-item">
+                <span class="step-badge">06</span>
+                <div class="step-title">上线与开源：让别人能复现</div>
+                <div class="step-body">
+                    部署到 <strong>Vercel</strong>，用环境变量注入 Key（绝不写进页面或仓库），并把 Demo / 本地启动 / 环境变量说明写进 GitHub README。对我而言，「能跑」不够，还要「别人按文档也能跑」——这才是可演示的工程闭环。
+                </div>
+            </li>
+        </ol>
+
+        <div class="takeaway-box">
+            <strong>我希望面试官能听到的判断力：</strong>先锁范围，再选最快跑通的技术路径；用结构化输入约束模型，用明确报错暴露系统边界；把 Cursor 当加速器，把产品决策权留在自己手里。
+        </div>
+        <p class="inline-links">
+            演示与源码：
+            <a href="https://xhs-ai-mvp.vercel.app" target="_blank" rel="noopener noreferrer">xhs-ai-mvp.vercel.app</a>
+            ·
+            <a href="https://github.com/suy79387-glitch/xhs-ai-mvp" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </p>
+    </div>
+
+    <div class="cute-divider">~ ~ ~ ✿ ~ ~ ~</div>
+
+    <!-- STAR 3 (真实量化结果) -->
+    <div class="cute-card">
+        <div class="card-label"> 结果 & 验收</div>
+        <div class="card-title">我的产品验收标准</div>
+        <div class="card-desc">
+            作为个人 MVP 项目，我没有做大规模用户测试，但我为自己设定了三个核心验收标准。只要达到这三点，我就认为产品是成立的：
+        </div>
+        <div class="metrics-grid">
+            <div class="metric-item">
+                <div class="metric-icon">️</div>
+                <div class="metric-title">交互 ≤ 3步</div>
+                <div class="metric-desc">结构化表单替代空白输入框，用户无需思考 Prompt 怎么写</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-icon">️</div>
+                <div class="metric-title">拒绝瞎编</div>
+                <div class="metric-desc">关键信息缺失时触发拦截提示，而非强行生成错误内容</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-icon"></div>
+                <div class="metric-title">成本可控</div>
+                <div class="metric-desc">单次生成消耗约 1000 Token，成本不到 1 毛钱，商业闭环成立</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--border);">
+            <div class="card-desc"><strong> 硬核排查彩蛋：</strong>在部署时，我遇到了 AI SDK 底层废弃旧传参的隐蔽 Bug。通过源码级分析，我主动重构路由层，彻底修复了流式输出中断问题，确保了生产环境的稳定。</div>
+            <div class="code-window">
+                <div class="code-header"><span>app/api/chat/route.ts</span><span>Diff</span></div>
+                <div class="code-body">
+                    <div class="del">- model: openai('gpt-3.5-turbo', { role: 'system' })</div>
+                    <div class="add">+ model: openai('deepseek-chat', { instructions: '...' })</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="cute-divider">~ ~ ~ ✿ ~ ~ ~</div>
+
+    <!-- 产品演示录屏：种草灵感制造机 MVP -->
+    <div class="cute-card demo-card">
+        <div class="card-label">产品演示 · 种草灵感制造机</div>
+        <div class="card-title">Alice的产品助手 · MVP 操作演示</div>
+        <div class="card-desc">
+            这是「种草灵感制造机」产品本身的真实操作录屏（约 5 分钟）：结构化表单填写 → 生成种草文案，完整走一遍小程序式产品流程。
+        </div>
+        <div class="video-wrap">
+            <video controls playsinline preload="metadata">
+                <source src="../../projects/xhs-mvp-demo.mp4" type="video/mp4">
+                你的浏览器暂不支持视频播放，请直接打开同目录下的 xhs-mvp-demo.mp4。
+            </video>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

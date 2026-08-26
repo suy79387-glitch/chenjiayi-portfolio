@@ -1,0 +1,86 @@
+{
+  "v": 10,
+  "items": [
+    {
+      "file": "national-scholarship.png",
+      "label": "国奖 · 国家奖学金",
+      "orient": "landscape"
+    },
+    {
+      "file": "ocale-special.png",
+      "label": "OCALE跨境电商 · 个人特等奖",
+      "orient": "portrait"
+    },
+    {
+      "file": "digital-trade.png",
+      "label": "数字贸易 · 全国二等奖",
+      "orient": "portrait"
+    },
+    {
+      "file": "challenge-cup.png",
+      "label": "挑战杯 · 省赛二等奖",
+      "orient": "landscape"
+    },
+    {
+      "file": "neccs-2023.png",
+      "label": "NECCS 2023 · C类二等奖",
+      "orient": "portrait"
+    },
+    {
+      "file": "business-ability.png",
+      "label": "商科综合能力大赛 · 三等奖",
+      "orient": "landscape"
+    },
+    {
+      "file": "naev-third.png",
+      "label": "学术英语词汇赛 · 三等奖",
+      "orient": "portrait"
+    },
+    {
+      "file": "guocaibei-reading.png",
+      "label": "外研社·国才杯 · 二等奖",
+      "orient": "landscape"
+    },
+    {
+      "file": "dianyue.png",
+      "label": "典阅杯 · 河南赛区三等奖",
+      "orient": "landscape"
+    },
+    {
+      "file": "neccs-2022.png",
+      "label": "NECCS 2022 省赛 · 优秀奖",
+      "orient": "landscape"
+    },
+    {
+      "file": "jianlong-cup.png",
+      "label": "洛阳建龙杯 · 优秀奖",
+      "orient": "landscape"
+    },
+    {
+      "file": "yuangeng-cup.png",
+      "label": "源耕杯电商助农 · 二等奖",
+      "orient": "landscape"
+    },
+    {
+      "file": "red-culture-dubbing.png",
+      "label": "红色文化节配音 · 三等奖",
+      "orient": "portrait"
+    },
+    {
+      "file": "scholarship-2021-2022.png",
+      "label": "二等奖学金 2021-2022",
+      "orient": "landscape"
+    },
+    {
+      "file": "sanxiaxiang.png",
+      "label": "三下乡先进个人",
+      "orient": "landscape"
+    },
+    {
+      "file": "twentyone-day.png",
+      "label": "21天蜕变计划 · 优胜奖",
+      "orient": "landscape"
+    }
+  ],
+  "skipped_duplicate": "_____20260815152948_225 (digital-trade same as 53315_246)"
+}

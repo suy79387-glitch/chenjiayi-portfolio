@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>觅柚Miyo小程序｜陈嘉仪作品集</title>
+  <meta name="description" content="觅柚Miyo小程序：独立完成的微信小程序，展示个人生活方式与审美，并附带足迹打卡与吃啥抽签等轻量工具。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #eef7f3;
+      --ink: #17302a;
+      --muted: #5d7a71;
+      --line: rgba(23, 48, 42, 0.1);
+      --mint-deep: #24967a;
+      --card: rgba(255, 255, 255, 0.72);
+      --shadow: 0 20px 50px rgba(36, 110, 90, 0.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "DM Sans", "PingFang SC", "Hiragino Sans GB", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 500px at 0% 0%, rgba(168, 224, 205, 0.55), transparent 55%),
+        radial-gradient(700px 480px at 100% 10%, rgba(191, 228, 236, 0.5), transparent 50%),
+        var(--bg);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+    a { color: inherit; text-decoration: none; }
+    .wrap {
+      width: min(960px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 36px 0 72px;
+    }
+    .back {
+      display: inline-flex;
+      font-size: 0.82rem;
+      font-weight: 650;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+    .back:hover { color: var(--mint-deep); }
+    .kicker {
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      font-weight: 700;
+      color: var(--mint-deep);
+      margin-bottom: 10px;
+    }
+    h1 {
+      font-family: "Fraunces", "Songti SC", serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .subtitle { font-size: 0.95rem; color: var(--muted); margin-bottom: 16px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+    .tags span {
+      font-size: 0.75rem;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(61, 184, 154, 0.12);
+      color: #1f6b58;
+      font-weight: 650;
+    }
+    .player {
+      width: 100%;
+      max-width: 100%;
+      min-height: 480px;
+      margin-bottom: 28px;
+      background: #111;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .player-bar {
+      text-align: center;
+      padding: 10px 12px;
+      background: #1a2420;
+      color: #c5ddd4;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+    .player video {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      min-height: 480px;
+      max-height: min(82vh, 860px);
+      background: #000;
+      object-fit: contain;
+    }
+    .lead {
+      font-size: 0.98rem;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 22px 24px;
+      box-shadow: var(--shadow);
+    }
+    @media (max-width: 640px) {
+      .player, .player video {
+        min-height: 360px;
+        max-height: min(70vh, 560px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="../index.html#projects">← 返回项目作品</a>
+    <div class="kicker">WECHAT MINI PROGRAM</div>
+    <h1>觅柚Miyo小程序</h1>
+    <p class="subtitle">微信小程序 · 独立完成设计、开发与上传审核</p>
+    <div class="tags">
+      <span>小日常</span>
+      <span>足迹：地图打卡 + 吃啥抽签</span>
+      <span>宝藏库：影视/小说/音乐收藏</span>
+      <span>我的：名片与皮肤</span>
+    </div>
+    <figure class="player">
+      <figcaption class="player-bar">产品演示</figcaption>
+      <video controls playsinline preload="metadata">
+        <source src="../projects/miyo.mp4" type="video/mp4" />
+        你的浏览器暂不支持视频播放，请直接打开 ../projects/miyo.mp4。
+      </video>
+    </figure>
+    <p class="lead">「觅柚 Miyo」是一款我独立完成的微信小程序，用来展示个人生活方式与审美，并附带两个轻量工具。底部四个入口：小日常记录生活；足迹用地图打卡去过的地方，并支持自建菜单抽签决定「今天吃啥」；宝藏库用卡片收藏喜欢的剧、电影、小说、女团和歌曲（小程序内浏览封面与简介）；我的则是个人名片与皮肤设置。风格偏干净小清新，数据本地存储，覆盖从设计、开发到上传审核的完整流程。</p>
+  </div>
+</body>
+</html>

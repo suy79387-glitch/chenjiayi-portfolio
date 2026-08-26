@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MindSync 数字人视频 Demo V2.7 MVP</title>
+<style>
+:root{
+  --bg:#f3f5f9;--panel:#fff;--line:#e7eaf2;--text:#202532;--muted:#8d96aa;
+  --primary:#4f6cff;--primary2:#8962ff;--soft:#eef3ff;--success:#10b981;--warn:#f59e0b;
+  --shadow:0 12px 30px rgba(34,46,82,.08)
+}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);background:var(--bg)}
+button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.app{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:100vh}
+.sidebar{background:#f8f9fd;border-right:1px solid #e4e8f0;padding:22px 16px;display:flex;flex-direction:column;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;padding:0 10px 14px}.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#2d70ff,#785cff);color:#fff;display:grid;place-items:center;font-weight:800;box-shadow:0 8px 18px rgba(79,108,255,.25)}.brand b{font-size:22px}.beta{display:block;color:#765eff;font-size:11px;margin-top:2px}
+.nav-title{color:#9aa1b1;font-size:13px;padding:6px 12px}.nav{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:11px;color:#42495a;font-size:15px;border:0;background:transparent;width:100%;text-align:left}.nav:hover{background:#eef1f7}.nav.active{background:linear-gradient(90deg,#315df6,#8a63ff);color:#fff;font-weight:650;box-shadow:0 8px 18px rgba(79,108,255,.2)}.nav i{font-style:normal;width:20px;text-align:center}.spacer{flex:1}.balance,.profile{background:#fff;border:1px solid #e6e9f1;border-radius:12px;padding:12px 14px;color:#5f6677;font-size:13px}.profile{display:flex;align-items:center;gap:10px}.avatar-dot{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#74b9ff,#6a5cff);color:#fff;display:grid;place-items:center;font-weight:700}
+.main{padding:18px;min-width:0}.crumb{height:44px;display:flex;align-items:center;gap:8px;color:#9098aa;font-size:14px}.crumb b{color:#252a36}.shell{background:#fff;border:1px solid #e9ecf3;border-radius:20px;box-shadow:var(--shadow);min-height:calc(100vh - 86px);overflow:hidden}.topbar{height:70px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px}.tabs{display:flex;gap:8px}.tab{border:0;background:transparent;padding:11px 16px;border-radius:10px;color:#697185;font-weight:650}.tab.active{color:#2f5dff;background:#eef3ff;box-shadow:inset 0 0 0 1px #dce5ff}.ghost,.light,.primary{border:1px solid #e0e4ed;border-radius:10px;padding:10px 14px;background:#fff;color:#4e5668;font-weight:650}.light{background:#f7f8fc}.primary{border:0;color:#fff;background:linear-gradient(90deg,var(--primary),var(--primary2));box-shadow:0 8px 18px rgba(79,108,255,.22)}.primary:disabled{opacity:.5;cursor:not-allowed}.page{display:none}.page.active{display:block}
+/* 数字人视频 */
+.workspace{display:grid;grid-template-columns:250px minmax(0,1fr);height:calc(100vh - 158px);min-height:680px;overflow:hidden}.history{border-right:1px solid var(--line);background:#fbfcff;padding:18px;overflow:auto}.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.section-title h3{font-size:16px;margin:0}.tiny{color:var(--muted);font-size:12px}.new-video{border:1px solid #dce5ff;background:#eef3ff;border-radius:9px;padding:7px 10px;color:#315eff;font-weight:700;font-size:12px}.history-subhead{display:flex;justify-content:space-between;color:#929aaa;font-size:11px;margin-bottom:14px}.history-list{display:grid;gap:11px}.history-card{display:grid;grid-template-columns:66px 1fr;gap:10px;padding:9px;border:1px solid #e8ebf3;background:#fff;border-radius:12px;cursor:pointer}.history-card.active{border-color:#6178ff;box-shadow:0 0 0 2px rgba(79,108,255,.08)}.history-thumb{height:86px;border-radius:9px;overflow:hidden;position:relative;background:#eaf0fa}.done{position:absolute;right:5px;bottom:5px;background:var(--success);color:#fff;border-radius:999px;font-size:10px;padding:3px 7px}.history-card b{font-size:13px}.history-card p{margin:7px 0 0;color:#929aab;font-size:11px}.type-tag{display:inline-flex;margin-top:6px;padding:3px 7px;border-radius:999px;background:#eef3ff;color:#4668ff;font-size:10px}
+.editor{display:grid;grid-template-columns:58px minmax(330px,1fr) 360px;min-width:0;min-height:0;height:100%;position:relative;overflow:hidden}.toolrail{border-right:1px solid var(--line);background:#fbfcff;padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:8px}.tool-btn{width:46px;border:0;background:transparent;border-radius:11px;padding:8px 3px;color:#677085;font-size:11px;display:grid;gap:4px;place-items:center}.tool-btn span:first-child{font-size:20px}.tool-btn:hover{background:#eef2fa}.tool-btn.active{background:#eef3ff;color:#315eff;font-weight:700}.tool-btn.material-entry{margin-top:auto;background:#f5f7ff;color:#315eff;border:1px solid #dce5ff}.tool-btn.material-entry:hover{background:#eaf0ff}.tool-btn.material-entry span:last-child{line-height:1.15}.tool-panel{position:absolute;z-index:8;left:58px;top:0;bottom:0;width:300px;background:#fff;border-right:1px solid var(--line);box-shadow:12px 0 24px rgba(38,49,79,.08);display:none;overflow:auto}.tool-panel.show{display:block}.tool-panel-head{height:58px;border-bottom:1px solid var(--line);padding:0 16px;display:flex;align-items:center;justify-content:space-between}.tool-panel-head h3{margin:0;font-size:16px}.close-panel{border:0;background:transparent;font-size:22px;color:#8d95a6}.tool-panel-body{padding:14px}.panel-tabs{display:flex;gap:8px;margin-bottom:12px}.pill{border:0;border-radius:999px;padding:8px 12px;background:#f1f3f8;color:#667085;font-size:12px}.pill.active{background:#eaf0ff;color:#315eff;font-weight:700}.asset-list{display:grid;gap:10px}.asset-card,.bg-card,.style-card{border:1px solid #e4e8f1;background:#fff;border-radius:12px;padding:10px;cursor:pointer}.asset-card.selected,.bg-card.selected,.style-card.selected{border-color:#5c76ff;box-shadow:0 0 0 2px rgba(79,108,255,.08)}.asset-card{display:grid;grid-template-columns:58px 1fr auto;gap:10px;align-items:center}.asset-mini{height:68px;border-radius:9px;overflow:hidden;background:#eef2f8}.asset-copy b{display:block;font-size:13px}.asset-copy span{display:block;color:#929aaa;font-size:11px;margin-top:5px}.check{width:22px;height:22px;border-radius:50%;border:1px solid #d8deea;display:grid;place-items:center;color:#fff;font-size:12px}.selected .check{background:#526eff;border-color:#526eff}.panel-action{width:100%;margin-top:12px;border:1px solid #dfe4ee;background:#fff;border-radius:10px;padding:10px;color:#4d5a74;font-weight:650}.panel-action.primary-soft{background:#eef3ff;color:#315eff;border-color:#dce5ff}.bg-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.bg-card{padding:8px}.bg-preview{height:76px;border-radius:8px;margin-bottom:7px;border:1px solid #eef0f5}.subtitle-preview{height:66px;border-radius:9px;background:#222b3a;color:#fff;display:grid;place-items:center;text-align:center;font-size:13px;margin-bottom:8px;padding:8px}
+.stage{padding:18px 20px;display:flex;flex-direction:column;min-width:0;background:#f9fafc}.stage-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.stage-top .left{display:flex;align-items:center;gap:9px}.ratio{border:1px solid #e0e4ed;background:#fff;border-radius:9px;padding:8px 10px;color:#667085;font-size:12px}.task-status{font-size:10px;padding:4px 7px;border-radius:999px;background:#eef3ff;color:#315eff}.task-status.completed{background:#eafaf4;color:#0b956d}.canvas-wrap{flex:1;border:1px solid #e5e8f0;background:linear-gradient(180deg,#f6f8fb,#eef1f7);border-radius:16px;display:grid;place-items:center;position:relative;overflow:hidden;min-height:520px}.canvas{width:290px;aspect-ratio:9/16;border-radius:15px;overflow:hidden;position:relative;box-shadow:0 18px 40px rgba(30,42,80,.18);background:#dfe6f4}.canvas svg{display:block;width:100%;height:100%}.caption{position:absolute;left:14px;right:14px;bottom:18px;background:rgba(20,24,35,.75);color:#fff;border-radius:8px;padding:8px 10px;text-align:center;font-size:13px;line-height:1.5}.play{position:absolute;inset:0;margin:auto;width:58px;height:58px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:#4f6cff;font-size:20px;box-shadow:0 8px 24px rgba(0,0,0,.16)}.canvas-meta{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:13px}.meta-chip{padding:5px 9px;border-radius:999px;background:#fff;border:1px solid #e2e6ef;color:#6c7487;font-size:11px}.generation{position:absolute;inset:0;background:rgba(248,250,255,.95);display:none;place-items:center;text-align:center;z-index:6}.generation.show{display:grid}.spinner{width:38px;height:38px;border-radius:50%;border:4px solid #dfe5f2;border-top-color:#5571ff;animation:spin .8s linear infinite;margin:0 auto 12px}@keyframes spin{to{transform:rotate(360deg)}}
+.rightpanel{border-left:1px solid var(--line);background:#fff;display:flex;flex-direction:column;min-height:0;height:100%;overflow:hidden}.right-scroll{flex:1;overflow-y:scroll;overscroll-behavior:contain;scrollbar-gutter:stable;padding:20px 20px 24px;min-height:0}.right-scroll::-webkit-scrollbar{width:8px}.right-scroll::-webkit-scrollbar-thumb{background:#d7ddea;border-radius:999px}.right-scroll::-webkit-scrollbar-track{background:transparent}.right-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.right-title h2{margin:0;font-size:20px}.autosave{color:#8d96aa;font-size:11px}.right-head-actions{display:flex;align-items:center;gap:10px}.smart-compose-btn{border:1px solid #dce5ff;background:#eef3ff;color:#315eff;border-radius:9px;padding:8px 11px;font-weight:750;font-size:12px;white-space:nowrap}.smart-compose-btn:hover{background:#e4ecff}.smart-compose-btn:disabled{opacity:.45;cursor:not-allowed;background:#f4f5f8;color:#9aa1b1;border-color:#e4e7ee}.secondary-download{background:#fff!important;color:#315eff!important;border:1px solid #dce5ff!important;box-shadow:none!important}.completed-notice{border:1px solid #dce5ff;background:#f5f7ff;border-radius:12px;padding:12px;color:#65718a;font-size:12px;line-height:1.6;margin-bottom:16px}.completed-notice b{color:#315eff}.field{margin-bottom:16px}.field label{display:block;font-size:13px;font-weight:650;margin-bottom:7px}.input,.field textarea,.select-like{width:100%;border:1px solid #dfe4ee;border-radius:10px;background:#fff;padding:11px 12px}.field textarea{height:128px;resize:vertical;line-height:1.6}.select-like{display:flex;align-items:center;justify-content:space-between;gap:10px}.select-like.clickable{cursor:pointer}.select-like.clickable:hover{border-color:#9fb0ff;background:#fbfcff}.select-like.readonly{background:#f7f8fb;color:#747d90}.select-action{font-size:12px;color:#315eff;font-weight:700;white-space:nowrap}.select-like.readonly .select-action{color:#98a0b1;font-weight:500}.selection-tip{margin:-6px 0 16px;color:#929aaa;font-size:11px;line-height:1.5}.select-left{display:flex;align-items:center;gap:10px}.mini-avatar{width:38px;height:38px;border-radius:8px;overflow:hidden;background:#edf2f8}.select-meta b{display:block;font-size:13px}.select-meta span{display:block;font-size:11px;color:#9199aa;margin-top:4px}.voice-row{display:grid;grid-template-columns:1fr 48px;gap:8px}.icon-btn{border:1px solid #dfe4ee;background:#fff;border-radius:10px;color:#506cff}.language-entry{width:100%;border:1px solid #dfe4ee;border-radius:10px;background:#fff;padding:11px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left}.language-entry.clickable{cursor:pointer}.language-entry.clickable:hover{border-color:#9fb0ff;background:#fbfcff}.language-entry.readonly{background:#f7f8fb;color:#747d90}.language-arrow{color:#7c869b;font-size:16px}.script-stats{margin-top:8px;color:#929aaa;font-size:11px}.language-list{display:grid;gap:10px}.language-option{display:grid;grid-template-columns:28px 1fr auto;gap:12px;align-items:center;border:1px solid #e3e7f0;border-radius:12px;padding:12px}.language-option.selected{border-color:#5d76ff;background:#f8faff}.language-check{width:20px;height:20px;border-radius:6px;border:1px solid #d5dbe7;display:grid;place-items:center;color:#fff;font-size:12px}.language-option.selected .language-check{background:#526eff;border-color:#526eff}.language-copy b{display:block;font-size:13px}.language-copy p{margin:5px 0 0;color:#8d96aa;font-size:11px}.language-voice{font-size:11px;color:#667085;background:#f1f3f8;border-radius:999px;padding:6px 9px}.language-note{margin-top:12px;border-radius:10px;background:#f5f7ff;color:#65718a;padding:11px 12px;font-size:11px;line-height:1.6}.language-option.locked{background:#f7f8fb;border-color:#e0e4ec}.language-option.locked .language-check{background:#98a2b3;border-color:#98a2b3}.language-status{font-size:11px;color:#315eff;background:#eef3ff;border-radius:999px;padding:6px 9px;white-space:nowrap}
+.picker-field{position:relative}.inline-picker{display:none;position:absolute;left:0;right:0;top:calc(100% - 8px);z-index:30;background:#fff;border:1px solid #dfe4ee;border-radius:12px;box-shadow:0 14px 32px rgba(34,46,82,.16);padding:10px;max-height:310px;overflow:auto}.inline-picker.show{display:block}.inline-picker-tabs{display:flex;gap:6px;margin-bottom:8px}.inline-picker-tab{border:0;background:#f1f3f8;color:#687186;border-radius:8px;padding:7px 10px;font-size:11px}.inline-picker-tab.active{background:#eef3ff;color:#315eff;font-weight:700}.inline-search{width:100%;border:1px solid #e1e5ee;border-radius:8px;padding:8px 10px;font-size:12px;margin-bottom:8px}.inline-option-list{display:grid;gap:6px}.inline-option{width:100%;border:1px solid transparent;background:#fff;border-radius:9px;padding:8px;display:flex;align-items:center;gap:9px;text-align:left;color:#313746}.inline-option:hover{background:#f7f9fd;border-color:#e5e9f2}.inline-option.selected{background:#f2f5ff;border-color:#9fb0ff}.inline-option-avatar{width:38px;height:42px;border-radius:8px;overflow:hidden;background:#eef2f8;flex:0 0 auto}.inline-option-copy{min-width:0;flex:1}.inline-option-copy b{display:block;font-size:12px}.inline-option-copy span{display:block;color:#929aaa;font-size:10px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.inline-check{width:18px;height:18px;border-radius:50%;border:1px solid #d8deea;display:grid;place-items:center;color:transparent;font-size:10px;flex:0 0 auto}.inline-option.selected .inline-check{background:#526eff;border-color:#526eff;color:#fff}.inline-language{display:grid;grid-template-columns:20px 1fr auto;gap:8px;align-items:center}.inline-language .inline-check{border-radius:5px}.picker-note{padding:8px 4px 2px;color:#8d96aa;font-size:10px;line-height:1.5}.picker-summary{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #eef0f5;margin-top:8px;padding-top:8px;color:#7d8698;font-size:10px}.voice-preview-mini{border:0;background:#eef3ff;color:#315eff;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto}.select-like.clickable,.language-entry.clickable{position:relative}.select-like.clickable[aria-expanded="true"],.language-entry.clickable[aria-expanded="true"]{border-color:#5d76ff;box-shadow:0 0 0 2px rgba(79,108,255,.08)}
+.basic-settings{border-top:1px solid #eef0f5;padding-top:16px;display:grid;gap:17px;margin-top:2px}.basic-settings .field{margin:0}.setting-label-line{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}.setting-label-line label{margin:0}.setting-value{font-size:12px;color:#667085;font-weight:700}.basic-settings.readonly{opacity:.82}.helper-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.helper{border:0;background:#f1f3f8;border-radius:8px;padding:7px 9px;color:#687186;font-size:11px}.setting-divider{height:1px;background:#eef0f5;margin:18px 0}.advanced-toggle{width:100%;border:0;background:transparent;padding:0;display:flex;justify-content:space-between;align-items:center;text-align:left}.advanced-toggle span:first-child{display:flex;flex-direction:column;gap:3px}.advanced-toggle small{color:#929aaa}.advanced-content{display:none;padding-top:14px}.advanced-content.show{display:block}.switch-row{display:flex;align-items:center;justify-content:space-between}.switch-row b{font-size:13px}.switch-row span{display:block;color:#929aaa;font-size:11px;margin-top:4px}.switch{width:46px;height:26px;border:0;border-radius:999px;background:#d7dce6;padding:3px}.switch span{display:block;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}.switch.on{background:#526eff}.switch.on span{transform:translateX(20px)}.right-footer{border-top:1px solid var(--line);padding:12px 20px;background:#fff}.footer-actions{display:grid;grid-template-columns:1fr 1.15fr;gap:8px}.generate{width:100%;border:0;border-radius:10px;padding:12px;background:linear-gradient(90deg,var(--primary),var(--primary2));color:#fff;font-weight:750}.hint{text-align:center;color:#a0a7b7;font-size:10px;margin-top:7px}
+/* 数字人管理 */
+.asset-page{padding:26px 28px 34px;min-height:calc(100vh - 158px);background:#fbfcff}
+.asset-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.asset-head h2{margin:0 0 7px;font-size:22px}.asset-head-copy{max-width:650px}
+.asset-guide{display:flex;align-items:center;gap:8px;margin-top:12px;color:#68738a;font-size:12px}.asset-guide i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#eef3ff;color:#315eff;font-weight:700}
+.asset-toolbar-v2{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:22px 0 16px}
+.asset-tabs{display:flex;gap:6px;margin:0;padding:4px;background:#f0f2f7;border-radius:12px}.asset-tabs .pill{border-radius:9px;padding:9px 16px}.asset-tabs .pill.active{background:#fff;color:#315eff;box-shadow:0 2px 8px rgba(33,45,80,.08)}
+.asset-toolbar-right{display:flex;align-items:center;gap:10px}.asset-search{width:270px;border:1px solid #dfe4ee;background:#fff;border-radius:10px;padding:10px 12px;outline:none}.asset-search:focus{border-color:#879cff;box-shadow:0 0 0 3px rgba(79,108,255,.1)}
+.asset-summary{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;color:#7e8799;font-size:12px}.asset-summary b{color:#303747}
+.asset-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.asset-card-v2{border:1px solid #e2e6ef;border-radius:15px;background:#fff;overflow:hidden;transition:.18s;min-width:0}.asset-card-v2:hover{transform:translateY(-2px);border-color:#cbd4ed;box-shadow:0 10px 24px rgba(32,45,78,.08)}
+.asset-visual{height:164px;background:#e8eef8;overflow:hidden;position:relative;display:grid;place-items:center}.asset-visual svg{width:100%;height:100%;display:block}.asset-status{position:absolute;right:10px;top:10px;padding:5px 8px;border-radius:999px;font-size:10px;background:#eafaf4;color:#0b956d}.asset-status.training{background:#fff4e6;color:#cf7517}
+.voice-cover{width:76px;height:76px;border-radius:22px;background:#fff;display:grid;place-items:center;font-size:38px;box-shadow:0 10px 22px rgba(39,52,88,.1)}.voice-bars{position:absolute;left:24px;right:24px;bottom:22px;height:22px;display:flex;align-items:center;justify-content:center;gap:4px;opacity:.38}.voice-bars span{width:4px;background:#506cff;border-radius:4px}.voice-bars span:nth-child(1),.voice-bars span:nth-child(7){height:7px}.voice-bars span:nth-child(2),.voice-bars span:nth-child(6){height:14px}.voice-bars span:nth-child(3),.voice-bars span:nth-child(5){height:20px}.voice-bars span:nth-child(4){height:11px}
+.asset-info{padding:14px 14px 12px}.asset-name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.asset-name-row b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.asset-kind{font-size:10px;color:#677185;background:#f3f5f9;border-radius:999px;padding:4px 7px;white-space:nowrap}.asset-meta{margin:8px 0 0;color:#8d96aa;font-size:11px;line-height:1.65}.asset-recent{margin-top:8px;color:#69748a;font-size:11px}
+.asset-card-actions{display:grid;grid-template-columns:1fr 1.25fr;gap:8px;padding:0 14px 14px}.asset-card-actions button{border:1px solid #dfe4ee;background:#fff;color:#4e5668;border-radius:9px;padding:9px 10px;font-weight:650;font-size:12px}.asset-card-actions button:hover{background:#f7f9fc}.asset-card-actions .asset-use{border:0;background:linear-gradient(90deg,var(--primary),var(--primary2));color:#fff}.asset-card-actions .asset-use:hover{filter:brightness(.98)}.asset-card-actions button:disabled{opacity:.45;cursor:not-allowed}
+.asset-empty{grid-column:1/-1;min-height:300px;border:1px dashed #d8deea;border-radius:16px;background:#fff;display:grid;place-items:center;text-align:center;color:#7f889a;padding:30px}.asset-empty strong{display:block;color:#303747;margin-bottom:8px}.asset-empty button{margin-top:16px}
+.asset-create-dialog{width:min(720px,96vw)}.create-intro{border:1px solid #dce5ff;background:#f6f8ff;border-radius:12px;padding:12px 14px;color:#63708a;font-size:12px;line-height:1.6;margin-bottom:16px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.form-item{margin-bottom:14px}.form-item.full{grid-column:1/-1}.form-item label{display:block;font-size:13px;font-weight:650;margin-bottom:7px}.form-item input,.form-item select,.form-item textarea{width:100%;border:1px solid #dfe4ee;border-radius:10px;padding:11px 12px;background:#fff}.form-item textarea{min-height:86px;resize:vertical}.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.method-card{border:1px solid #dfe4ee;background:#fff;border-radius:12px;padding:13px;text-align:left}.method-card.active{border-color:#5d76ff;background:#f6f8ff;box-shadow:0 0 0 2px rgba(79,108,255,.08)}.method-card b{display:block}.method-card span{display:block;color:#8d96aa;font-size:11px;line-height:1.5;margin-top:5px}.method-card em{font-style:normal;color:#cf7517;background:#fff2df;border-radius:999px;padding:2px 6px;font-size:9px;margin-left:5px}
+.upload-box{border:1px dashed #bcc7dd;background:#fbfcff;border-radius:12px;padding:22px;text-align:center;color:#6d778c;cursor:pointer}.upload-box:hover{border-color:#738bff;background:#f7f9ff}.upload-box .upload-icon{font-size:28px;color:#526eff}.upload-box b{display:block;color:#3d4658;margin-top:7px}.upload-box span{display:block;font-size:11px;margin-top:5px}.upload-box.ready{border-style:solid;border-color:#7c92ff;background:#f4f7ff;color:#315eff}
+.consent-row{display:flex;align-items:flex-start;gap:9px;color:#667085;font-size:11px;line-height:1.5}.consent-row input{margin-top:2px}.asset-preview-content{display:grid;grid-template-columns:250px 1fr;gap:20px;align-items:center}.asset-preview-visual{height:310px;border-radius:14px;background:#e8eef8;overflow:hidden;display:grid;place-items:center}.asset-preview-visual svg{width:100%;height:100%}.preview-details h3{margin:0 0 8px}.preview-details p{color:#7e8799;font-size:12px;line-height:1.7}.preview-facts{display:grid;gap:9px;margin-top:18px}.preview-fact{display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid #eef0f5;padding-bottom:9px;font-size:12px}.preview-fact span{color:#8d96aa}
+/* 素材成片 */
+.material-page{min-height:calc(100vh - 158px);background:#f7f9fc}.material-head{height:70px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:#fff}.material-title{display:flex;align-items:center;gap:12px}.back-btn{border:0;background:#f2f4f8;border-radius:9px;padding:8px 11px;color:#60697b}.material-title h2{margin:0;font-size:20px}.beta-tag{padding:4px 8px;border-radius:999px;background:#fff1e7;color:#d27214;font-size:10px}.stepper{display:flex;align-items:center;gap:10px}.step{display:flex;align-items:center;gap:7px;color:#9aa1b1;font-size:12px}.step-num{width:25px;height:25px;border-radius:50%;border:1px solid #dfe4ed;background:#fff;display:grid;place-items:center}.step.active{color:#315eff;font-weight:700}.step.active .step-num{background:#526eff;color:#fff;border-color:#526eff}.step.done{color:#65708a}.step.done .step-num{background:#eaf0ff;color:#315eff;border-color:#dce5ff}.step-line{width:56px;height:1px;background:#dfe4ed}.material-body{padding:24px 28px 110px;max-width:1320px;margin:0 auto}.compose-setup{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;align-items:start}.material-card{background:#fff;border:1px solid #e5e8f0;border-radius:16px;padding:20px;margin-bottom:16px}.material-card h3{margin:0 0 6px;font-size:17px}.material-card .desc{color:#8d96aa;font-size:12px;line-height:1.6}.base-strip{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid #dce5ff;background:#f6f8ff;border-radius:13px;padding:12px;margin-top:16px}.base-logo{width:56px;height:56px;border-radius:11px;overflow:hidden;background:#e4ebf8}.base-copy b{display:block;font-size:13px}.base-copy span{display:block;color:#7e889c;font-size:11px;margin-top:5px}.locked-chip{border-radius:999px;background:#eaf0ff;color:#315eff;padding:6px 9px;font-size:10px;white-space:nowrap}.source-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}.source-actions button{border:1px solid #dfe4ee;background:#fff;border-radius:10px;padding:10px 14px;font-weight:650}.source-actions .primary-soft{background:#eef3ff;color:#315eff;border-color:#dce5ff}.asset-toolbar{display:flex;align-items:center;justify-content:space-between;margin-top:18px;gap:12px}.asset-toolbar h4{margin:0;font-size:14px}.filter-row{display:flex;gap:7px}.filter-chip{border:1px solid #e0e4ed;background:#fff;border-radius:999px;padding:7px 10px;color:#697286;font-size:11px}.filter-chip.active{border-color:#9eb0ff;background:#eef3ff;color:#315eff;font-weight:650}.asset-pool{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}.media-item{border:1px solid #e2e6ef;border-radius:13px;padding:10px;background:#fff;cursor:pointer;position:relative}.media-item.selected{border-color:#5d76ff;box-shadow:0 0 0 2px rgba(79,108,255,.08)}.media-thumb{height:108px;border-radius:9px;background:linear-gradient(135deg,#e8eef9,#f8f4ee);display:grid;place-items:center;font-size:34px;overflow:hidden}.media-item b{display:block;font-size:12px;margin-top:9px}.media-item span{display:block;font-size:10px;color:#929aaa;margin-top:4px}.media-check{position:absolute;right:16px;top:16px;width:23px;height:23px;border-radius:50%;border:1px solid #d8deea;background:#fff;display:grid;place-items:center;color:#fff}.media-item.selected .media-check{background:#526eff;border-color:#526eff}.setup-side{position:sticky;top:18px}.settings-list{display:grid;gap:16px}.setting-block{padding-bottom:15px;border-bottom:1px solid #edf0f5}.setting-block:last-child{border-bottom:0;padding-bottom:0}.setting-block label{display:block;font-size:13px;font-weight:650;margin-bottom:9px}.choice-row{display:flex;gap:8px;flex-wrap:wrap}.choice{border:1px solid #dfe4ee;background:#fff;border-radius:9px;padding:9px 12px;color:#626b7e}.choice.active{border-color:#5b75ff;background:#eef3ff;color:#315eff;font-weight:650}.setup-summary{margin-top:16px;border-radius:12px;background:#f7f9fc;padding:12px;color:#6f798d;font-size:11px;line-height:1.7}.material-footer{position:fixed;left:248px;right:18px;bottom:18px;background:rgba(255,255,255,.96);border:1px solid #e3e7ef;border-radius:14px;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 12px 26px rgba(34,46,82,.12);z-index:12}.material-footer .summary{color:#737d91;font-size:12px}.result-shell{display:grid;gap:16px}.result-layout{display:grid;grid-template-columns:240px minmax(0,1fr) 300px;gap:16px;align-items:stretch}.replace-panel,.result-preview,.result-side{background:#fff;border:1px solid #e3e7f0;border-radius:16px;padding:16px}.replace-panel h3,.result-side h3{margin:0 0 12px;font-size:15px}.replace-list{display:grid;gap:9px;max-height:480px;overflow:auto;padding-right:3px}.replace-item{display:grid;grid-template-columns:46px 1fr;gap:9px;align-items:center;border:1px solid #e4e8f0;border-radius:10px;padding:8px;background:#fff;cursor:pointer}.replace-item:hover{border-color:#9fb0ff;background:#fafbff}.replace-thumb{height:42px;border-radius:8px;background:#eef2f8;display:grid;place-items:center}.replace-item b{font-size:11px}.replace-item span{display:block;color:#929aaa;font-size:10px;margin-top:3px}.result-canvas{height:470px;border-radius:14px;background:linear-gradient(180deg,#e7eef9,#dce5f3);display:grid;place-items:center;position:relative;overflow:hidden}.result-video{width:245px;aspect-ratio:9/16;border-radius:13px;background:#dce7f7;overflow:hidden;position:relative;box-shadow:0 15px 35px rgba(25,38,74,.2)}.result-video .scene-label{position:absolute;left:12px;top:12px;background:rgba(79,108,255,.9);color:#fff;border-radius:999px;padding:5px 8px;font-size:10px}.result-video .scene-emoji{position:absolute;inset:0;display:grid;place-items:center;font-size:58px;opacity:.78}.playhead-label{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(25,31,45,.78);color:#fff;border-radius:999px;padding:6px 10px;font-size:10px}.clip-setting{border:1px solid #e3e7f0;border-radius:12px;padding:13px}.clip-setting b{display:block}.clip-setting p{font-size:11px;color:#8d96aa;line-height:1.5}.clip-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.clip-actions button{border:1px solid #dfe4ee;background:#fff;border-radius:9px;padding:9px}.timeline-wrap{background:#fff;border:1px solid #e3e7f0;border-radius:16px;padding:16px}.timeline-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.timeline-head h3{margin:0;font-size:15px}.time-ruler{display:flex;justify-content:space-between;color:#9aa1b1;font-size:10px;margin:0 0 7px 86px}.track-row{display:grid;grid-template-columns:76px minmax(0,1fr);gap:10px;align-items:center;margin-bottom:10px}.track-label{font-size:11px;color:#667085;font-weight:650}.track{display:flex;gap:6px;min-height:66px;align-items:stretch;overflow-x:auto;padding-bottom:3px}.visual-clip{min-width:94px;border:1px solid #dfe4ee;background:#fff;border-radius:10px;padding:8px;cursor:pointer;position:relative;flex-grow:1}.visual-clip.active{border-color:#5c75ff;background:#f5f7ff;box-shadow:0 0 0 2px rgba(79,108,255,.08)}.visual-clip .thumb{height:32px;border-radius:7px;background:#eef2f8;display:grid;place-items:center;font-size:18px}.visual-clip b{display:block;font-size:10px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.visual-clip span{font-size:9px;color:#8d96aa}.audio-strip{width:100%;min-height:42px;border-radius:9px;background:linear-gradient(90deg,#eef3ff,#f4f1ff);border:1px solid #dce5ff;color:#5063a8;display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-size:10px}.audio-strip.music{background:#f7f8fb;border-color:#e3e7ef;color:#747d90}.lock{font-size:10px;opacity:.8}.add-clip{min-width:90px;border:1px dashed #cfd6e4;background:#fbfcff;border-radius:10px;color:#65708a}.generate-state{text-align:center;padding:70px 20px}.generate-state p{color:#8d96aa}@media(max-width:1180px){.compose-setup{grid-template-columns:1fr}.setup-side{position:static}.result-layout{grid-template-columns:1fr}.replace-panel{order:2}.result-side{order:3}.asset-pool{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* modal */.modal{position:fixed;inset:0;background:rgba(22,28,43,.48);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}.modal.show{display:flex}.dialog{width:min(840px,96vw);max-height:88vh;background:#fff;border-radius:16px;display:flex;flex-direction:column;overflow:hidden}.dialog-head,.dialog-foot{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}.dialog-foot{border-top:1px solid var(--line);border-bottom:0}.dialog-head h3{margin:0}.close{margin-left:auto;border:0;background:transparent;font-size:22px;color:#8d96aa}.dialog-body{padding:18px 20px;overflow:auto}.dialog-spacer{flex:1}.modal-tabs{display:flex;gap:8px;margin-bottom:12px}.modal-tab{border:0;background:#f1f3f8;border-radius:9px;padding:9px 12px;color:#697185}.modal-tab.active{background:#eef3ff;color:#315eff;font-weight:700}.modal-search{display:flex;gap:8px;margin-bottom:12px}.modal-search input{flex:1;border:1px solid #dfe4ee;border-radius:10px;padding:10px 12px}.modal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.modal-avatar{border:1px solid #e3e7f0;border-radius:12px;overflow:hidden;cursor:pointer}.modal-avatar.selected{border-color:#5d76ff;box-shadow:0 0 0 2px rgba(79,108,255,.08)}.modal-avatar .cover{height:205px;background:#eaf0f8;overflow:hidden}.modal-avatar .copy{padding:10px}.modal-avatar p{margin:5px 0 0;color:#8d96aa;font-size:10px}.voice-modal-list{display:grid;gap:10px}.voice-option{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;border:1px solid #e3e7f0;border-radius:12px;padding:12px;cursor:pointer}.voice-option:hover{background:#fafbfe}.voice-option.selected{border-color:#5d76ff;box-shadow:0 0 0 2px rgba(79,108,255,.08)}.voice-play{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#eef3ff;color:#315eff;font-size:13px}.voice-copy b{display:block;font-size:13px}.voice-copy p{margin:5px 0 0;color:#8d96aa;font-size:11px}.manage-link{border:0;background:transparent;color:#315eff;font-weight:700;padding:8px 4px}.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);opacity:0;background:#222936;color:#fff;border-radius:9px;padding:10px 16px;font-size:12px;z-index:80;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:1180px){.app{grid-template-columns:190px minmax(0,1fr)}.editor{grid-template-columns:52px minmax(300px,1fr) 330px}.asset-grid{grid-template-columns:repeat(2,1fr)}.asset-toolbar-v2{align-items:stretch}.asset-toolbar-right{flex:1}.asset-search{width:100%}.material-footer{left:208px}.asset-pool{grid-template-columns:repeat(3,1fr)}}
+
+/* lite version overrides */
+.asset-guide,.asset-toolbar-v2 .asset-search,.asset-toolbar-v2 .ghost{display:none!important}
+#refreshBtn{display:none!important}
+.toolrail,.tool-panel{display:none!important}
+.editor{grid-template-columns:minmax(330px,1fr) 360px}
+.caption,.basic-settings .switch-row{display:none!important}
+.version-chip,.type-tag,#smartComposeBtn{display:none!important}
+.footer-actions{grid-template-columns:1fr}
+.scene-builder,.basic-settings,.output-controls,.preflight,.helper-row,.ratio,.canvas-meta,.selection-tip{display:none!important}
+.new-video-guide{display:none;position:absolute;inset:0;z-index:20;background:#fff;align-items:center;justify-content:center;text-align:center;padding:40px}.new-video-guide.show{display:flex}.new-video-guide-inner{max-width:460px}.new-video-guide-icon{width:58px;height:58px;margin:0 auto 18px;border-radius:18px;background:#eef3ff;color:#4f6cff;display:grid;place-items:center;font-size:28px}.new-video-guide h2{margin:0;font-size:22px;color:#252d3d}.new-video-guide p{margin:10px auto 20px;color:#7c879b;font-size:13px;line-height:1.7}.new-video-guide-actions{display:flex;justify-content:center;gap:10px}.new-video-guide-actions button{border:1px solid #dce5ff;background:#fff;border-radius:10px;padding:10px 15px;color:#315eff;font-size:13px;font-weight:700}.new-video-guide-actions button.primary{background:linear-gradient(90deg,var(--primary),var(--primary2));color:#fff;border:0}.new-video-guide-note{margin-top:16px;color:#9aa2b2;font-size:11px}
+.tool-btn[data-tool="template"],.tool-btn[data-tool="background"],.tool-btn[data-tool="music"]{display:none!important}
+.toolrail{justify-content:flex-start}
+.completed-notice{font-size:12px}
+
+.status-filter{display:flex;gap:6px;margin:10px 0 14px;overflow-x:auto;padding-bottom:2px}.status-filter button{border:1px solid #e1e5ee;background:#fff;border-radius:999px;padding:6px 9px;color:#778095;font-size:10px;white-space:nowrap}.status-filter button.active{background:#eef3ff;border-color:#9fb0ff;color:#315eff;font-weight:700}.task-badge{position:absolute;right:5px;bottom:5px;color:#fff;border-radius:999px;font-size:9px;padding:3px 7px}.task-badge.completed{background:#19a56f}.task-badge.processing{background:#526eff}.task-badge.queued{background:#d48a18}.task-badge.failed{background:#d95050}.history-progress{height:4px;background:#edf0f5;border-radius:99px;margin-top:7px;overflow:hidden}.history-progress i{display:block;height:100%;background:#6078ff}.scene-builder{border:1px solid #dce5ff;background:#f8faff;border-radius:13px;padding:12px;margin:0 0 16px}.scene-builder-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}.scene-builder-head b{font-size:13px}.scene-builder-head button{border:0;background:transparent;color:#315eff;font-size:11px;font-weight:700}.scene-list{display:grid;gap:7px}.scene-row{display:grid;grid-template-columns:24px minmax(0,1fr);gap:8px;align-items:start;border:1px solid #e3e8f2;background:#fff;border-radius:9px;padding:9px}.scene-num{width:24px;height:24px;border-radius:7px;background:#eef3ff;color:#315eff;display:grid;place-items:center;font-size:10px;font-weight:800}.scene-copy b{font-size:11px}.scene-copy span{display:block;color:#929aaa;font-size:9px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}.scene-controls{display:flex;gap:5px;margin-top:7px}.scene-controls select{min-width:0;border:1px solid #e1e5ee;background:#f8f9fc;border-radius:7px;padding:5px;color:#657086;font-size:9px}.scene-preview{border:0;background:#eef3ff;color:#315eff;border-radius:7px;padding:5px 7px;font-size:9px}.preflight{border:1px solid #dfe4ee;border-radius:13px;padding:12px;margin-top:16px;background:#fff}.preflight h4{margin:0 0 9px;font-size:13px}.preflight-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.preflight-item{background:#f7f9fc;border-radius:8px;padding:8px}.preflight-item span{display:block;color:#929aaa;font-size:9px}.preflight-item b{display:block;font-size:11px;margin-top:3px}.preflight-warn{display:flex;gap:6px;margin-top:9px;padding:8px;border-radius:8px;background:#fff8e8;color:#9b6b17;font-size:10px;line-height:1.45}.preflight-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}.preflight-actions button{border:1px solid #dce5ff;background:#f5f7ff;color:#315eff;border-radius:8px;padding:8px;font-size:10px;font-weight:700}.output-controls{border-top:1px solid #eef0f5;margin-top:16px;padding-top:16px}.output-controls h4{font-size:13px;margin:0 0 10px}.output-block{margin-bottom:12px}.output-block label{display:block;font-size:11px;font-weight:650;margin-bottom:7px}.segmented{display:flex;gap:6px;flex-wrap:wrap}.segmented button{border:1px solid #dfe4ee;background:#fff;color:#687186;border-radius:8px;padding:7px 9px;font-size:10px}.segmented button.active{border-color:#9fb0ff;background:#eef3ff;color:#315eff;font-weight:700}.translation-review{width:min(900px,96vw)}.translation-table{display:grid;gap:10px}.translation-row{display:grid;grid-template-columns:90px 1fr 1fr;gap:10px;align-items:start}.translation-lang{padding:10px;border-radius:9px;background:#eef3ff;color:#315eff;font-size:11px;font-weight:700}.translation-cell{border:1px solid #e2e6ef;border-radius:9px;padding:9px;font-size:11px;line-height:1.55;min-height:64px}.translation-cell small{display:block;color:#929aaa;margin-bottom:4px}.brand-glossary{border:1px solid #dce5ff;background:#f6f8ff;border-radius:10px;padding:10px;margin-bottom:12px;color:#65718a;font-size:11px}.version-chip{display:inline-flex;padding:3px 7px;border-radius:999px;background:#f1f3f8;color:#6c7588;font-size:9px;margin-left:5px}.download-options{display:grid;gap:9px}.download-option{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;border:1px solid #e2e6ef;border-radius:11px;padding:11px}.download-option input{width:17px;height:17px}.download-option b{display:block;font-size:12px}.download-option span{display:block;color:#9099aa;font-size:10px;margin-top:4px}.file-tag{border-radius:999px;background:#f1f3f8;color:#687186;padding:5px 7px;font-size:9px}.pack-summary{border-radius:10px;background:#f6f8ff;color:#65718a;padding:10px;font-size:11px;line-height:1.6;margin-top:12px}.preview-demo{height:360px;border-radius:14px;background:linear-gradient(180deg,#e7eef9,#d8e4f3);display:grid;place-items:center;position:relative;overflow:hidden}.preview-demo .preview-person{width:180px;height:320px}.preview-countdown{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);background:rgba(23,30,46,.8);color:#fff;border-radius:999px;padding:7px 12px;font-size:11px}@media(max-width:1180px){.translation-row{grid-template-columns:70px 1fr}.translation-row .translation-cell:last-child{grid-column:2}.preflight-grid{grid-template-columns:1fr}}
+/* 视频创作：中间创作，右侧历史，保持与其他 AI 创作页面一致 */
+.workspace{grid-template-columns:minmax(0,1fr) 310px}
+.history{order:2;border-right:0;border-left:1px solid var(--line);padding:18px 16px}
+.history .section-title{margin-bottom:14px}.history-card{grid-template-columns:60px minmax(0,1fr);gap:9px;padding:8px}.history-thumb{height:76px}.history-card b{display:block;line-height:1.35}.history-subhead{margin-bottom:12px}
+.editor{order:1;grid-template-columns:340px minmax(360px,1fr)}
+.stage{grid-column:2;grid-row:1}.rightpanel{grid-column:1;grid-row:1;border-left:0;border-right:1px solid var(--line)}.stage-top{gap:12px}
+@media(max-width:1350px){.workspace{grid-template-columns:minmax(0,1fr) 280px}.editor{grid-template-columns:310px minmax(330px,1fr)}}
+@media(max-width:1100px){.workspace{grid-template-columns:minmax(0,1fr)}.history{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">M²</div><div><b>MindSync</b><span class="beta">BETA</span></div></div>
+    <button class="nav"><i>⌂</i>首页</button>
+    <div class="nav-title">AI创作</div>
+    <button class="nav"><i>✦</i>爆款复刻</button>
+    <button class="nav"><i>▣</i>去字幕</button>
+    <button class="nav"><i>▧</i>图片生成</button>
+    <button class="nav"><i>▶</i>视频生成</button>
+    <button class="nav active" id="navDigital"><i>◎</i>数字人视频</button>
+    <button class="nav"><i>✺</i>Seedance 2.0</button>
+    <button class="nav"><i>▱</i>资产库</button>
+    <div class="spacer"></div><div class="balance">可用额度 ¥ 137.11<br><span class="tiny">本月剩余 24 分钟</span></div><div class="profile"><div class="avatar-dot">王</div><div><b>王文娟</b><br><span class="tiny">管理员</span></div></div>
+  </aside>
+  <main class="main">
+    <div class="crumb" id="crumb">AI创作 <span>›</span> <b>数字人视频</b></div>
+    <section class="shell">
+      <header class="topbar" id="digitalTopbar"><div class="tabs"><button class="tab active" data-digital-page="video">视频创作</button><button class="tab" data-digital-page="assets">数字人管理</button></div></header>
+      <div class="page active" id="videoPage">
+        <div class="workspace">
+          <aside class="history"><div class="section-title"><h3>历史记录</h3></div><div class="history-subhead"><span>最近作品</span><span>自动更新</span></div><div class="history-list" id="historyList"></div></aside>
+          <section class="editor">
+            <nav class="toolrail"><button class="tool-btn active" data-tool="template"><span>▦</span><span>模板</span></button><button class="tool-btn" data-tool="background"><span>▧</span><span>背景</span></button><button class="tool-btn" data-tool="text"><span>T</span><span>字幕</span></button><button class="tool-btn" data-tool="music"><span>♫</span><span>音乐</span></button></nav>
+            <aside class="tool-panel" id="toolPanel"><div class="tool-panel-head"><h3 id="toolTitle">数字人</h3><button class="close-panel" id="closeTool">×</button></div><div class="tool-panel-body" id="toolBody"></div></aside>
+            <section class="stage"><div class="stage-top"><div class="left"><button class="ratio">▣ 9:16</button><span class="tiny" id="taskNameLabel"></span><span class="task-status completed" id="taskStatus">已完成</span></div><button class="new-video" id="newVideoBtn">＋ 新建视频</button></div><div class="canvas-wrap"><div class="canvas" id="canvas"><div id="avatarCanvas"></div><div class="caption" id="canvasCaption"></div><button class="play">▶</button><div class="generation" id="generation"><div><div class="spinner"></div><b>数字人视频生成中</b><p class="tiny">正在生成口播、字幕和画面…</p></div></div></div></div><div class="canvas-meta"><span class="meta-chip" id="bgChip"></span><span class="meta-chip" id="langChip"></span><span class="meta-chip" id="musicChip"></span></div></section>
+            <aside class="rightpanel"><div class="right-scroll" id="rightScroll"><div class="right-title"><h2 id="rightTitle">作品详情</h2><div class="right-head-actions"><span class="autosave" id="autosave">已保存至作品库</span></div></div><div class="completed-notice" id="completedNotice"><b>已完成作品</b><br>可直接下载；需要加入图片或视频素材时，可在底部进入“智能成片”继续制作。</div><div class="field"><label>任务名称</label><input class="input" id="taskInput"></div><div class="field picker-field"><label>数字人形象</label><button class="select-like clickable" id="avatarSelector" type="button" aria-expanded="false"><div class="select-left"><div class="mini-avatar" id="selectedAvatarMini"></div><div class="select-meta"><b id="selectedAvatarName"></b><span id="selectedAvatarMeta"></span></div></div><span class="select-action" id="avatarSelectAction">选择</span></button><div class="inline-picker" id="avatarDropdown"></div></div><div class="field picker-field"><label>声音</label><div class="voice-row"><button class="select-like clickable" id="voiceSelector" type="button" aria-expanded="false"><div class="select-meta"><b id="selectedVoiceName"></b><span id="selectedVoiceMeta"></span></div><span class="select-action" id="voiceSelectAction">选择</span></button><button class="icon-btn" id="previewVoice" type="button">▶</button></div><div class="inline-picker" id="voiceDropdown"></div></div><div class="selection-tip" id="selectionTip">可直接下拉选择数字人、声音和输出语言；已完成作品更换后会创建新版本草稿，不覆盖原作品。</div><div class="field picker-field"><label>输出语言</label><button class="language-entry clickable" id="languageSelector" type="button" aria-expanded="false"><div class="select-meta"><b id="languageName">中文</b><span id="languageMeta">将生成 1 个视频版本</span></div><span class="language-arrow">⌄</span></button><div class="inline-picker" id="languageDropdown"></div></div><div class="field"><label>口播文案</label><textarea id="scriptInput"></textarea><div class="helper-row"><button class="helper" id="optimizeScript">✦ 优化表达</button><button class="helper" id="shortenScript">精简文案</button></div><div class="script-stats" id="scriptStats">共 0 字，预计 0 秒</div></div><div class="basic-settings" id="basicSettings"><div class="field"><div class="setting-label-line"><label>语速</label><span class="setting-value" id="speedValue">1.0</span></div><input type="range" id="speedRange" min="0.5" max="2" step="0.1" value="1" style="width:100%"></div><div class="switch-row"><div><b>自动字幕</b><span>按所选语言自动生成字幕；字幕样式可在左侧调整</span></div><button class="switch on" id="subtitleSwitch" type="button"><span></span></button></div></div></div><div class="right-footer"><div id="editFooter" class="hidden"><button class="generate" id="generateBtn">生成数字人视频</button><div class="hint">生成成功后自动保存至作品库</div></div><div id="historyFooter"><div class="footer-actions"><button class="generate secondary-download" id="downloadTask">下载视频</button><button class="generate" id="smartComposeBtn">✦ 智能成片</button></div><div class="hint">智能成片会自动带入当前数字人口播视频，再添加图片或视频素材进行编排</div></div></div></aside>
+          </section>
+        </div>
+      </div>
+      <div class="page" id="assetsPage">
+        <div class="asset-page">
+          <div class="asset-head">
+            <div class="asset-head-copy"><h2>数字人管理</h2><div class="tiny">管理已创建的数字人形象和定制声音，视频创作时可直接选择使用。</div><div class="asset-guide"><i>i</i><span>这里负责“创建和管理”；视频创作页负责“选择和使用”，避免与资产库混淆。</span></div></div>
+            <button class="primary" id="newAssetBtn">＋ 创建数字人</button>
+          </div>
+          <div class="asset-toolbar-v2">
+            <div class="asset-tabs"><button class="pill active" data-asset-tab="avatar">我的数字人</button><button class="pill" data-asset-tab="voice">我的声音</button></div>
+            <div class="asset-toolbar-right"><input class="asset-search" id="assetSearch" placeholder="搜索我的数字人"><button class="ghost" id="assetRefreshBtn">↻ 刷新</button></div>
+          </div>
+          <div class="asset-summary"><span id="assetCountText">共 0 个资产</span><span id="assetTabHint">数字人训练完成后可直接用于视频创作</span></div>
+          <div class="asset-grid" id="assetGrid"></div>
+        </div>
+      </div>
+      <div class="page" id="materialPage">
+        <div class="material-page">
+          <div class="material-head"><div class="material-title"><button class="back-btn" id="backFromMaterial">‹ 返回数字人口播</button><h2>智能成片</h2><span class="beta-tag">一期</span></div><div class="stepper"><div class="step active" data-compose-step="1"><span class="step-num">1</span>素材与设置</div><div class="step-line"></div><div class="step" data-compose-step="2"><span class="step-num">2</span>预览调整</div></div></div>
+          <div class="material-body" id="materialBody"></div>
+          <div class="material-footer" id="materialFooter"><div class="summary" id="materialSummary"></div><div><button class="ghost hidden" id="materialPrev">返回素材与设置</button> <button class="ghost hidden" id="materialRegen">重新成片</button> <button class="primary" id="materialNext">AI生成成片</button></div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="modal" id="avatarModal"><div class="dialog"><div class="dialog-head"><h3>选择数字人形象</h3><button class="close" data-close="avatarModal">×</button></div><div class="dialog-body"><div class="modal-tabs"><button class="modal-tab active" data-avatar-tab="public">公共数字人</button><button class="modal-tab" data-avatar-tab="mine">我的数字人</button></div><div class="modal-search"><input id="avatarSearch" placeholder="搜索数字人名称、风格或场景"><button class="ghost">筛选</button></div><div class="modal-grid" id="avatarGrid"></div></div><div class="dialog-foot"><button class="manage-link" id="manageAvatarBtn">＋ 创建数字人</button><div class="dialog-spacer"></div><button class="ghost" data-close="avatarModal">取消</button><button class="primary" id="confirmAvatar">确认使用</button></div></div></div>
+<div class="modal" id="voiceModal"><div class="dialog" style="width:min(700px,96vw)"><div class="dialog-head"><h3>选择声音</h3><button class="close" data-close="voiceModal">×</button></div><div class="dialog-body"><div class="modal-tabs"><button class="modal-tab active" data-voice-tab="public">公共声音</button><button class="modal-tab" data-voice-tab="mine">我的声音</button></div><div class="modal-search"><input id="voiceSearch" placeholder="搜索声音名称或风格"><button class="ghost">筛选</button></div><div class="voice-modal-list" id="voiceGrid"></div></div><div class="dialog-foot"><button class="manage-link" id="manageVoiceBtn">＋ 定制声音</button><div class="dialog-spacer"></div><button class="ghost" data-close="voiceModal">取消</button><button class="primary" id="confirmVoice">确认使用</button></div></div></div>
+<div class="modal" id="languageModal"><div class="dialog" style="width:min(640px,96vw)"><div class="dialog-head"><h3 id="languageModalTitle">选择输出语言</h3><button class="close" data-close="languageModal">×</button></div><div class="dialog-body"><div class="language-list" id="languageGrid"></div><div class="language-note" id="languageModalNote">不同语言将分别生成独立视频版本；系统会自动匹配同风格声音，并按各语言音频时长重新对齐字幕。</div></div><div class="dialog-foot"><span class="tiny" id="languageCountTip">已选择 1 种语言</span><div class="dialog-spacer"></div><button class="ghost" data-close="languageModal">取消</button><button class="primary" id="confirmLanguage">确认选择</button></div></div></div>
+<div class="modal" id="createAssetModal"><div class="dialog asset-create-dialog"><div class="dialog-head"><h3 id="createAssetTitle">新建数字人</h3><button class="close" data-close="createAssetModal">×</button></div><div class="dialog-body" id="createAssetBody"></div><div class="dialog-foot"><button class="ghost" data-close="createAssetModal">取消</button><div class="dialog-spacer"></div><button class="primary" id="submitCreateAsset">提交训练</button></div></div></div>
+<div class="modal" id="assetPreviewModal"><div class="dialog" style="width:min(680px,96vw)"><div class="dialog-head"><h3 id="assetPreviewTitle">资产预览</h3><button class="close" data-close="assetPreviewModal">×</button></div><div class="dialog-body" id="assetPreviewBody"></div><div class="dialog-foot"><button class="ghost" data-close="assetPreviewModal">关闭</button><div class="dialog-spacer"></div><button class="primary" id="previewUseBtn">用于新视频</button></div></div></div>
+<div class="toast" id="toast"></div>
+<script>
+const avatars=[
+{id:'a1',name:'林悦',source:'public',style:'亲和种草',scene:'美妆护肤',bg:'#dbe9ff',hair:'#202633',skin:'#f4c7a1',shirt:'#fff'},
+{id:'a2',name:'顾毅',source:'public',style:'专业讲解',scene:'3C数码',bg:'#dfe6f7',hair:'#1a1f2a',skin:'#e6b48d',shirt:'#2f3440'},
+{id:'a3',name:'卢艺',source:'public',style:'知性专业',scene:'通用口播',bg:'#dbeff0',hair:'#252330',skin:'#f0c19c',shirt:'#f4f5f7'},
+{id:'m1',name:'王老师',source:'mine',style:'专属IP',scene:'直播带货',bg:'#d9e6f7',hair:'#2d2426',skin:'#eab58f',shirt:'#54705c'},
+{id:'m2',name:'品牌主播A',source:'mine',style:'品牌专属',scene:'商品讲解',bg:'#efe5db',hair:'#1e1c24',skin:'#f0c29f',shirt:'#f0eee8'}];
+const voices={v1:{id:'v1',name:'自然女声',meta:'公共声音 · 中文',source:'public',style:'亲和自然'},v2:{id:'v2',name:'专业女声',meta:'公共声音 · 中文',source:'public',style:'清晰知性'},mv1:{id:'mv1',name:'王老师专属声音',meta:'我的声音 · 中文',source:'mine',style:'品牌专属'}};
+const languageDefs=[
+  {id:'zh',name:'中文',voice:'当前声音'},
+  {id:'en',name:'英语',voice:'自动匹配同风格声音'},
+  {id:'ja',name:'日语',voice:'自动匹配同风格声音'},
+  {id:'ko',name:'韩语',voice:'自动匹配同风格声音'},
+  {id:'fr',name:'法语',voice:'自动匹配同风格声音'},
+  {id:'de',name:'德语',voice:'自动匹配同风格声音'},
+  {id:'es',name:'西班牙语',voice:'自动匹配同风格声音'},
+  {id:'es-mx',name:'墨西哥-西班牙语',voice:'自动匹配同风格声音'},
+  {id:'it',name:'意大利语',voice:'自动匹配同风格声音'},
+  {id:'pt-br',name:'巴西-葡萄牙语',voice:'自动匹配同风格声音'},
+  {id:'ru',name:'俄语',voice:'自动匹配同风格声音'},
+  {id:'nl',name:'荷兰语',voice:'自动匹配同风格声音'},
+  {id:'pl',name:'波兰语',voice:'自动匹配同风格声音'},
+  {id:'tr',name:'土耳其语',voice:'自动匹配同风格声音'},
+  {id:'th',name:'泰语',voice:'自动匹配同风格声音'},
+  {id:'vi',name:'越南语',voice:'自动匹配同风格声音'}
+];
+const voiceLanguageOptions=languageDefs.map(l=>`<option>${l.name}</option>`).join('');
+const backgrounds=[{id:'b0',name:'保留原背景',css:'linear-gradient(180deg,#dce8f8,#d6e2f1)'},{id:'b1',name:'清爽梳妆台',css:'linear-gradient(135deg,#f5efe8,#e7eef8)'},{id:'b2',name:'品牌直播间',css:'linear-gradient(135deg,#e9e5ff,#f3ecff)'},{id:'b3',name:'明亮办公室',css:'linear-gradient(135deg,#e7f2f4,#f5f7fb)'}];
+let tasks=[{id:'t1',name:'新品面膜种草口播',date:'7月22日 17:06',avatar:'a1',voice:'v1',languages:['zh'],music:'不添加',speed:1,subtitle:true,script:'夏天敷面膜最怕黏腻，这款上脸清爽又服帖。独立小包装，出差旅行也方便。现在活动期间还有买一送一，想囤面膜的别错过。'},{id:'t2',name:'618返场福利口播',date:'7月21日 15:32',avatar:'m1',voice:'mv1',languages:['zh'],music:'轻快种草',speed:1.1,subtitle:true,script:'618返场福利来了，清透修护面膜限时买一送一。'},{id:'t3',name:'夏季新品讲解',date:'7月18日 11:20',avatar:'a3',voice:'v2',languages:['zh'],music:'不添加',speed:1,subtitle:true,script:'夏季新品清爽上线，轻薄服帖，日常通勤和旅行都方便。'}];
+const mediaLibrary=[
+{id:'base',name:'数字人口播视频',type:'video',icon:'🎙️',duration:8,source:'数字人视频'},
+{id:'m1',name:'面膜贴合脸部特写',type:'video',icon:'🎬',duration:4,source:'素材库'},
+{id:'m2',name:'独立包装展示',type:'video',icon:'🎬',duration:3,source:'素材库'},
+{id:'m3',name:'买一送一活动海报',type:'image',icon:'🖼️',duration:2,source:'素材库'},
+{id:'m4',name:'夏日清爽生活场景',type:'video',icon:'🎬',duration:5,source:'素材库'},
+{id:'m5',name:'品牌Logo收尾页',type:'image',icon:'🖼️',duration:2,source:'素材库'}];
+const state={screen:'digital',digitalPage:'video',viewMode:'history',activeTask:'t1',avatar:avatars[0],pendingAvatar:avatars[0],avatarTab:'public',voice:'v1',pendingVoice:'v1',voiceTab:'public',languages:['zh'],pendingLanguages:['zh'],background:backgrounds[0],music:'不添加',template:'未使用',subtitle:true,subtitleStyle:'简洁白字',speed:1,draftName:'',draftScript:'',pickerOpen:null,assetTab:'avatar',assetSearch:'',createAssetType:'avatar',createMethod:'video',createUploadReady:false,previewAsset:null,tool:'template',composeStep:1,composeFromTask:true,composeFilter:'all',composeRatio:'9:16',composeDuration:'自动',composeOrder:'AI智能编排',composeMusic:'不添加',selectedMedia:['m1','m2','m3'],timeline:['base','m1','m2','m3'],activeClip:0,composeGenerated:false};
+function avatarSvg(a,transparent=false){return `<svg viewBox="0 0 300 534" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="534" fill="${transparent?'transparent':a.bg}"/><circle cx="65" cy="86" r="32" fill="#fff" opacity=".35"/><circle cx="236" cy="92" r="38" fill="#fff" opacity=".28"/><ellipse cx="150" cy="184" rx="66" ry="76" fill="${a.hair}"/><circle cx="150" cy="195" r="55" fill="${a.skin}"/><circle cx="132" cy="190" r="5" fill="#2f3035"/><circle cx="170" cy="190" r="5" fill="#2f3035"/><path d="M132 218 Q150 234 170 218" stroke="#aa5d67" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M92 183 Q104 116 151 116 Q205 118 210 184 Q190 144 152 142 Q112 143 92 183" fill="${a.hair}"/><path d="M104 330 Q150 288 196 330 L225 534 H75Z" fill="${a.shirt}"/><rect x="132" y="246" width="36" height="58" rx="16" fill="${a.skin}"/></svg>`}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t.timer);t.timer=setTimeout(()=>t.classList.remove('show'),1800)}
+function task(){return tasks.find(t=>t.id===state.activeTask)||tasks[0]}
+function setScreen(screen){state.screen=screen;const isCompose=screen==='material';document.getElementById('videoPage').classList.toggle('active',screen==='digital'&&state.digitalPage==='video');document.getElementById('assetsPage').classList.toggle('active',screen==='digital'&&state.digitalPage==='assets');document.getElementById('materialPage').classList.toggle('active',isCompose);document.getElementById('digitalTopbar').classList.remove('hidden');document.getElementById('navDigital').classList.add('active');document.getElementById('crumb').innerHTML=isCompose?'AI创作 <span>›</span> <b>数字人视频</b> <span>›</span> <b>智能成片</b>':'AI创作 <span>›</span> <b>数字人视频</b>';document.querySelectorAll('[data-digital-page]').forEach(b=>b.classList.toggle('active',!isCompose&&b.dataset.digitalPage===state.digitalPage));if(isCompose)renderCompose()}
+function switchDigitalPage(page){state.digitalPage=page;document.querySelectorAll('[data-digital-page]').forEach(b=>b.classList.toggle('active',b.dataset.digitalPage===page));setScreen('digital');document.getElementById('videoPage').classList.toggle('active',page==='video');document.getElementById('assetsPage').classList.toggle('active',page==='assets');if(page==='assets')renderAssets()}
+function renderHistory(){document.getElementById('historyList').innerHTML=tasks.map(t=>{const a=avatars.find(x=>x.id===t.avatar);return `<div class="history-card ${state.activeTask===t.id?'active':''}" data-task="${t.id}"><div class="history-thumb">${avatarSvg(a)}<span class="done">已完成</span></div><div><b>${t.name}</b><p>${t.date}</p><span class="type-tag">数字人口播</span></div></div>`}).join('');document.querySelectorAll('[data-task]').forEach(el=>el.onclick=()=>loadTask(el.dataset.task))}
+function renderDigital(){
+  const t=task();
+  const isHistory=state.viewMode==='history';
+  if(isHistory){
+    state.avatar=avatars.find(a=>a.id===t.avatar)||state.avatar;
+    state.voice=t.voice||state.voice;
+    state.languages=t.languages||['zh'];
+    state.music=t.music||'不添加';
+    state.speed=t.speed||1;
+    state.subtitle=t.subtitle!==false;
+  }
+  document.getElementById('taskNameLabel').textContent=isHistory?t.name:'新建数字人视频';
+  document.getElementById('taskStatus').textContent=isHistory?'已完成':'草稿';
+  document.getElementById('taskStatus').classList.toggle('completed',isHistory);
+  document.getElementById('rightTitle').textContent=isHistory?'作品详情':'视频设置';
+  document.getElementById('autosave').textContent=isHistory?'已保存至作品库':'草稿已自动保存';
+  const composeBtn=document.getElementById('smartComposeBtn');
+  composeBtn.disabled=!isHistory;
+  composeBtn.title=isHistory?'添加图片或视频并生成智能成片':'请先生成数字人视频';
+  document.getElementById('completedNotice').classList.toggle('hidden',!isHistory);
+  document.getElementById('editFooter').classList.toggle('hidden',isHistory);
+  document.getElementById('historyFooter').classList.toggle('hidden',!isHistory);
+  document.getElementById('taskInput').value=isHistory?t.name:(state.draftName||'新建数字人视频');
+  document.getElementById('scriptInput').value=isHistory?t.script:(state.draftScript||'');
+  document.getElementById('taskInput').disabled=isHistory;
+  document.getElementById('scriptInput').disabled=isHistory;
+  const languageSelector=document.getElementById('languageSelector');
+  languageSelector.classList.add('clickable');
+  languageSelector.classList.remove('readonly');
+  languageSelector.removeAttribute('aria-disabled');
+  ['avatarSelector','voiceSelector'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.classList.add('clickable');
+    el.classList.remove('readonly');
+    el.removeAttribute('aria-disabled');
+  });
+  document.getElementById('avatarSelectAction').textContent='选择';
+  document.getElementById('voiceSelectAction').textContent='选择';
+  document.getElementById('selectionTip').textContent=isHistory?'如需调整数字人、声音或文案，将复制为一条新的创作。':'可直接下拉选择；需要创建数字人或定制声音时，请前往「数字人管理」。';
+  document.getElementById('selectedAvatarMini').innerHTML=avatarSvg(state.avatar);
+  document.getElementById('selectedAvatarName').textContent=state.avatar.name;
+  document.getElementById('selectedAvatarMeta').textContent=`${state.avatar.source==='public'?'公共数字人':'我的数字人'} · ${state.avatar.style}`;
+  const v=voices[state.voice]||voices.v1;
+  document.getElementById('selectedVoiceName').textContent=v.name;
+  document.getElementById('selectedVoiceMeta').textContent=v.meta;
+  const langNames=state.languages.map(id=>(languageDefs.find(l=>l.id===id)||languageDefs[0]).name);
+  document.getElementById('languageName').textContent=langNames.join('、');
+  document.getElementById('languageMeta').textContent=isHistory?'当前作品的输出语言':'将按所选语言生成视频';
+  document.getElementById('speedRange').value=state.speed;
+  document.getElementById('speedValue').textContent=Number(state.speed).toFixed(1);
+  document.getElementById('speedRange').disabled=isHistory;
+  document.getElementById('subtitleSwitch').disabled=isHistory;
+  document.getElementById('subtitleSwitch').classList.toggle('on',state.subtitle);
+  document.getElementById('basicSettings').classList.toggle('readonly',isHistory);
+  document.getElementById('avatarCanvas').innerHTML=avatarSvg(state.avatar,true);
+  document.getElementById('canvas').style.background=state.background.css;
+  const script=isHistory?t.script:document.getElementById('scriptInput').value;
+  document.getElementById('canvasCaption').textContent=script?script.slice(0,32)+'…':'输入口播文案后预览字幕';
+  document.getElementById('bgChip').textContent=`背景 · ${state.background.name}`;
+  document.getElementById('langChip').textContent=`语言 · ${langNames.join('、')}`;
+  document.getElementById('musicChip').textContent=`音乐 · ${state.music}`;
+  const count=(script||'').replace(/\s/g,'').length;
+  document.getElementById('scriptStats').textContent=`共 ${count} 字，预计 ${Math.max(0,Math.ceil(count/4))} 秒`;
+  renderHistory();
+}
+function loadTask(id){state.activeTask=id;state.viewMode='history';state.showNewVideoGuide=false;document.getElementById('toolPanel').classList.remove('show');renderDigital();document.getElementById('rightScroll').scrollTop=0;toast('正在查看 '+task().name)}
+function newVideo(){state.viewMode='edit';state.activeTask=null;state.showNewVideoGuide=true;state.draftName='新建数字人视频';state.draftScript='';state.pickerOpen=null;state.avatar=avatars[3];state.voice='v1';state.languages=['zh'];state.pendingLanguages=['zh'];state.background=backgrounds[0];state.music='不添加';state.template='未使用';state.speed=1;state.subtitle=true;document.getElementById('toolPanel').classList.remove('show');renderDigital();document.getElementById('taskInput').value='新建数字人视频';document.getElementById('scriptInput').value='';document.getElementById('canvasCaption').textContent='输入口播文案后预览字幕';document.getElementById('rightScroll').scrollTop=0;toast('请先创建数字人形象和声音')}
+function renderTool(tool){
+  state.tool=tool;
+  document.querySelectorAll('.tool-btn').forEach(b=>b.classList.toggle('active',b.dataset.tool===tool));
+  const titles={template:'模板',background:'背景',text:'字幕',music:'音乐'};
+  document.getElementById('toolTitle').textContent=titles[tool]||'创作工具';
+  const body=document.getElementById('toolBody');
+  if(tool==='template'){
+    const templates=[['知识口播','明亮办公室','简洁白字'],['商品讲解','品牌直播间','重点高亮'],['情感口播','保留原背景','柔和字幕'],['广告宣传','清爽梳妆台','品牌字幕']];
+    body.innerHTML=`<div class="panel-tabs"><button class="pill active">推荐</button><button class="pill">热门</button><button class="pill">最新</button></div><div class="tiny" style="margin-bottom:10px">模板会同时应用背景、数字人位置和字幕样式。</div><div class="bg-grid">${templates.map((t,i)=>`<div class="bg-card ${state.template===t[0]?'selected':''}" data-template="${t[0]}" data-bg-name="${t[1]}" data-subtitle="${t[2]}"><div class="bg-preview" style="background:linear-gradient(135deg,${i%2?'#e8edf8':'#f1e9ff'},#fff);display:grid;place-items:center;font-size:24px">▦</div><b>${t[0]}</b><div class="tiny" style="margin-top:4px">${t[1]} · ${t[2]}</div></div>`).join('')}</div>`;
+    body.querySelectorAll('[data-template]').forEach(c=>c.onclick=()=>{if(state.viewMode==='history')return toast('已完成作品不可修改');state.template=c.dataset.template;state.background=backgrounds.find(b=>b.name===c.dataset.bgName)||backgrounds[0];state.subtitleStyle=c.dataset.subtitle;renderDigital();renderTool('template');toast('已应用 '+state.template+' 模板')});
+  }
+  if(tool==='avatar'){
+    body.innerHTML=`<div class="panel-tabs"><button class="pill active">公共数字人</button><button class="pill">我的数字人</button></div><div class="asset-list">${avatars.slice(0,4).map(a=>`<div class="asset-card ${state.avatar.id===a.id?'selected':''}" data-small-avatar="${a.id}"><div class="asset-mini">${avatarSvg(a)}</div><div class="asset-copy"><b>${a.name}</b><span>${a.style} · ${a.scene}</span></div><div class="check">✓</div></div>`).join('')}</div><button class="panel-action primary-soft" id="openAvatarModalBtn">查看更多数字人</button>`;
+    body.querySelectorAll('[data-small-avatar]').forEach(c=>c.onclick=()=>{if(state.viewMode==='history')return toast('已完成作品不可修改');state.avatar=avatars.find(a=>a.id===c.dataset.smallAvatar);renderDigital();renderTool('avatar')});
+    document.getElementById('openAvatarModalBtn').onclick=()=>openAvatarModal();
+  }
+  if(tool==='music'){
+    const tracks=[['不添加','—'],['轻快种草','02:46'],['清新氛围','02:32'],['专业讲解','03:05'],['欢腾新春','03:18']];
+    body.innerHTML=`<div class="panel-tabs"><button class="pill active">推荐音乐</button><button class="pill">素材库</button><button class="pill">本地上传</button></div><div class="asset-list">${tracks.map(([n,d])=>`<div class="asset-card ${state.music===n?'selected':''}" data-music="${n}"><div class="asset-mini" style="display:grid;place-items:center;font-size:26px">${n==='不添加'?'∅':'♫'}</div><div class="asset-copy"><b>${n}</b><span>${n==='不添加'?'保持纯人声':d}</span></div><div class="check">✓</div></div>`).join('')}</div><div class="tiny" style="margin-top:10px">背景音乐仅作为数字人口播的轻量增强；图片和视频素材仍在“智能成片”中添加。</div>`;
+    body.querySelectorAll('[data-music]').forEach(c=>c.onclick=()=>{if(state.viewMode==='history')return toast('已完成作品不可修改');state.music=c.dataset.music;renderDigital();renderTool('music');toast(state.music==='不添加'?'已取消背景音乐':'已添加 '+state.music)});
+  }
+  if(tool==='background'){
+    body.innerHTML=`<div class="panel-tabs"><button class="pill active">AI推荐</button><button class="pill">素材库</button><button class="pill">本地上传</button></div><div class="bg-grid">${backgrounds.map(b=>`<div class="bg-card ${state.background.id===b.id?'selected':''}" data-bg="${b.id}"><div class="bg-preview" style="background:${b.css}"></div><b>${b.name}</b></div>`).join('')}</div><button class="panel-action primary-soft">✦ 根据文案重新推荐</button>`;
+    body.querySelectorAll('[data-bg]').forEach(c=>c.onclick=()=>{if(state.viewMode==='history')return toast('已完成作品不可修改');state.background=backgrounds.find(b=>b.id===c.dataset.bg);renderDigital();renderTool('background');toast('已应用 '+state.background.name)});
+  }
+  if(tool==='text'){
+    const textStyles=['标题','副标题','正文','强烈推荐','直播狂欢','新品上市'];
+    body.innerHTML=`<div class="panel-tabs"><button class="pill active">气泡文字</button><button class="pill">文字模板</button></div><div class="bg-grid">${textStyles.map(t=>`<div class="style-card"><div class="subtitle-preview" style="background:#f5f6fa;color:#303747;border:1px solid #e6e9f1">${t}</div><b>${t}</b></div>`).join('')}</div>`;
+    body.querySelectorAll('.style-card').forEach(c=>c.onclick=()=>toast(state.viewMode==='history'?'已完成作品不可修改':'已应用字幕样式'));
+  }
+  document.getElementById('toolPanel').classList.add('show');
+}
+
+function beginRevisionDraft(){
+  if(state.viewMode!=='history')return false;
+  const t=task();
+  state.viewMode='edit';
+  state.draftName=t.name+'-副本';
+  state.draftScript=t.script||'';
+  state.activeTask=null;
+  state.avatar=avatars.find(a=>a.id===t.avatar)||state.avatar;
+  state.voice=t.voice||state.voice;
+  state.languages=[...(t.languages||['zh'])];
+  state.music=t.music||'不添加';
+  state.speed=t.speed||1;
+  state.subtitle=t.subtitle!==false;
+  return true
+}
+function closeInlinePickers(except=null){
+  ['avatar','voice','language'].forEach(name=>{
+    if(name===except)return;
+    const panel=document.getElementById(name+'Dropdown');
+    const trigger=document.getElementById(name+'Selector');
+    if(panel)panel.classList.remove('show');
+    if(trigger)trigger.setAttribute('aria-expanded','false')
+  });
+  if(!except)state.pickerOpen=null
+}
+function toggleInlinePicker(name){
+  const panel=document.getElementById(name+'Dropdown');
+  const trigger=document.getElementById(name+'Selector');
+  const opening=!panel.classList.contains('show');
+  closeInlinePickers(opening?name:null);
+  panel.classList.toggle('show',opening);
+  trigger.setAttribute('aria-expanded',String(opening));
+  state.pickerOpen=opening?name:null;
+  if(opening){
+    if(name==='avatar')renderAvatarDropdown();
+    if(name==='voice')renderVoiceDropdown();
+    if(name==='language')renderLanguageDropdown()
+  }
+}
+function renderAvatarDropdown(){
+  const panel=document.getElementById('avatarDropdown');
+  const q=(panel.querySelector('#inlineAvatarSearch')?.value||'').toLowerCase();
+  const list=avatars.filter(a=>a.source===state.avatarTab&&(a.name+a.style+a.scene).toLowerCase().includes(q));
+  panel.innerHTML=`<div class="inline-picker-tabs"><button class="inline-picker-tab ${state.avatarTab==='public'?'active':''}" data-inline-avatar-tab="public">公共数字人</button><button class="inline-picker-tab ${state.avatarTab==='mine'?'active':''}" data-inline-avatar-tab="mine">我的数字人</button></div><input class="inline-search" id="inlineAvatarSearch" placeholder="搜索名称或风格" value="${q}"><div class="inline-option-list">${list.map(a=>`<button class="inline-option ${state.avatar.id===a.id?'selected':''}" data-inline-avatar="${a.id}"><span class="inline-option-avatar">${avatarSvg(a)}</span><span class="inline-option-copy"><b>${a.name}</b><span>${a.style} · ${a.scene}</span></span><span class="inline-check">✓</span></button>`).join('')||'<div class="picker-note">暂无匹配数字人</div>'}</div><div class="picker-note">${state.viewMode==='history'?'更换后将复制为一条新的创作。':'新建数字人请前往数字人管理。'}</div>`;
+  panel.querySelectorAll('[data-inline-avatar-tab]').forEach(b=>b.onclick=e=>{e.stopPropagation();state.avatarTab=b.dataset.inlineAvatarTab;renderAvatarDropdown()});
+  panel.querySelector('#inlineAvatarSearch').oninput=renderAvatarDropdown;
+  panel.querySelectorAll('[data-inline-avatar]').forEach(b=>b.onclick=e=>{e.stopPropagation();const revised=beginRevisionDraft();state.avatar=avatars.find(a=>a.id===b.dataset.inlineAvatar);state.pendingAvatar=state.avatar;state.pickerOpen=null;closeInlinePickers();renderDigital();toast(revised?'已复制为新创作并更换数字人':'已选择 '+state.avatar.name)})
+}
+function renderVoiceDropdown(){
+  const panel=document.getElementById('voiceDropdown');
+  const q=(panel.querySelector('#inlineVoiceSearch')?.value||'').toLowerCase();
+  const list=Object.values(voices).filter(v=>v.source===state.voiceTab&&(v.name+v.meta+v.style).toLowerCase().includes(q));
+  panel.innerHTML=`<div class="inline-picker-tabs"><button class="inline-picker-tab ${state.voiceTab==='public'?'active':''}" data-inline-voice-tab="public">公共声音</button><button class="inline-picker-tab ${state.voiceTab==='mine'?'active':''}" data-inline-voice-tab="mine">我的声音</button></div><input class="inline-search" id="inlineVoiceSearch" placeholder="搜索名称或风格" value="${q}"><div class="inline-option-list">${list.map(v=>`<div class="inline-option ${state.voice===v.id?'selected':''}"><button class="voice-preview-mini" data-inline-preview="${v.id}" title="试听">▶</button><button class="inline-option-copy" data-inline-voice="${v.id}" style="border:0;background:transparent;text-align:left;padding:0"><b>${v.name}</b><span>${v.meta} · ${v.style}</span></button><span class="inline-check">✓</span></div>`).join('')||'<div class="picker-note">暂无匹配声音</div>'}</div><div class="picker-note">${state.viewMode==='history'?'更换后将复制为一条新的创作。':'定制声音请前往数字人管理。'}</div>`;
+  panel.querySelectorAll('[data-inline-voice-tab]').forEach(b=>b.onclick=e=>{e.stopPropagation();state.voiceTab=b.dataset.inlineVoiceTab;renderVoiceDropdown()});
+  panel.querySelector('#inlineVoiceSearch').oninput=renderVoiceDropdown;
+  panel.querySelectorAll('[data-inline-preview]').forEach(b=>b.onclick=e=>{e.stopPropagation();toast('正在试听 '+voices[b.dataset.inlinePreview].name)});
+  panel.querySelectorAll('[data-inline-voice]').forEach(b=>b.onclick=e=>{e.stopPropagation();const revised=beginRevisionDraft();state.voice=b.dataset.inlineVoice;state.pendingVoice=state.voice;state.pickerOpen=null;closeInlinePickers();renderDigital();toast(revised?'已复制为新创作并更换声音':'已选择 '+voices[state.voice].name)})
+}
+function renderLanguageDropdown(){
+  const panel=document.getElementById('languageDropdown');
+  panel.innerHTML=`<div class="inline-option-list">${languageDefs.map(l=>`<button class="inline-option inline-language ${state.languages.includes(l.id)?'selected':''}" data-inline-language="${l.id}"><span class="inline-check">✓</span><span class="inline-option-copy"><b>${l.name}</b><span>${l.id==='zh'?'使用当前文案':'自动翻译并匹配同风格声音'}</span></span><span class="tiny">${state.languages.includes(l.id)?'已选':'选择'}</span></button>`).join('')}</div><div class="picker-summary"><span>已选择 ${state.languages.length} 种语言</span><span>至少保留一种</span></div><div class="picker-note">不同语言将分别生成独立视频。</div>`;
+  panel.querySelectorAll('[data-inline-language]').forEach(b=>b.onclick=e=>{e.stopPropagation();const id=b.dataset.inlineLanguage;const revised=beginRevisionDraft();if(state.languages.includes(id)){if(state.languages.length===1)return toast('至少保留一种输出语言');state.languages=state.languages.filter(x=>x!==id)}else state.languages.push(id);state.pendingLanguages=[...state.languages];renderDigital();state.pickerOpen='language';document.getElementById('languageDropdown').classList.add('show');document.getElementById('languageSelector').setAttribute('aria-expanded','true');renderLanguageDropdown();if(revised)toast('已创建新版本草稿，可继续选择语言')})
+}
+function openAvatarModal(){state.pendingAvatar=state.avatar;state.avatarTab='public';renderAvatarModal();document.getElementById('avatarModal').classList.add('show')}
+function renderAvatarModal(){const q=document.getElementById('avatarSearch').value.toLowerCase();document.querySelectorAll('[data-avatar-tab]').forEach(b=>b.classList.toggle('active',b.dataset.avatarTab===state.avatarTab));document.getElementById('avatarGrid').innerHTML=avatars.filter(a=>a.source===state.avatarTab&&(a.name+a.style+a.scene).toLowerCase().includes(q)).map(a=>`<div class="modal-avatar ${state.pendingAvatar.id===a.id?'selected':''}" data-modal-avatar="${a.id}"><div class="cover">${avatarSvg(a)}</div><div class="copy"><b>${a.name}</b><p>${a.style} · ${a.scene}</p></div></div>`).join('');document.querySelectorAll('[data-modal-avatar]').forEach(c=>c.onclick=()=>{state.pendingAvatar=avatars.find(a=>a.id===c.dataset.modalAvatar);renderAvatarModal()})}
+function openVoiceModal(){state.pendingVoice=state.voice;state.voiceTab=(voices[state.voice]||voices.v1).source;document.getElementById('voiceSearch').value='';renderVoiceModal();document.getElementById('voiceModal').classList.add('show')}
+function openLanguageModal(){state.pendingLanguages=[...state.languages];renderLanguageModal();document.getElementById('languageModal').classList.add('show')}
+function renderLanguageModal(){
+  const isHistory=state.viewMode==='history';
+  const generated=isHistory?[...(task().languages||['zh'])]:[];
+  document.getElementById('languageModalTitle').textContent=isHistory?'添加语言版本':'选择输出语言';
+  document.getElementById('languageModalNote').textContent=isHistory?'已生成的语言版本不会被覆盖或删除；新增语言将自动翻译文案、匹配同风格声音，并生成独立视频版本。':'不同语言将分别生成独立视频版本；系统会自动匹配同风格声音，并按各语言音频时长重新对齐字幕。';
+  const additions=state.pendingLanguages.filter(id=>!generated.includes(id));
+  document.getElementById('confirmLanguage').textContent=isHistory?(additions.length?`生成 ${additions.length} 个新版本`:'完成'):'确认选择';
+  document.getElementById('languageGrid').innerHTML=languageDefs.map(l=>{
+    const selected=state.pendingLanguages.includes(l.id);
+    const locked=generated.includes(l.id);
+    return `<div class="language-option ${selected?'selected':''} ${locked?'locked':''}" data-language="${l.id}" data-locked="${locked}"><div class="language-check">✓</div><div class="language-copy"><b>${l.name}</b><p>${l.id==='zh'?'使用当前口播文案':'自动翻译口播文案并生成独立版本'}</p></div><span class="${locked?'language-status':'language-voice'}">${locked?'已生成':l.voice}</span></div>`
+  }).join('');
+  document.getElementById('languageCountTip').textContent=isHistory?`已有 ${generated.length} 个版本，待新增 ${additions.length} 个`:`已选择 ${state.pendingLanguages.length} 种语言`;
+  document.querySelectorAll('[data-language]').forEach(c=>c.onclick=()=>{
+    const id=c.dataset.language;
+    if(c.dataset.locked==='true')return toast('已生成的语言版本不可取消');
+    if(state.pendingLanguages.includes(id)){
+      if(state.pendingLanguages.length===1)return toast('至少保留一种输出语言');
+      state.pendingLanguages=state.pendingLanguages.filter(x=>x!==id)
+    }else state.pendingLanguages.push(id);
+    renderLanguageModal()
+  })
+}
+function renderVoiceModal(){const q=document.getElementById('voiceSearch').value.toLowerCase();document.querySelectorAll('[data-voice-tab]').forEach(b=>b.classList.toggle('active',b.dataset.voiceTab===state.voiceTab));const list=Object.values(voices).filter(v=>v.source===state.voiceTab&&(v.name+v.meta+v.style).toLowerCase().includes(q));document.getElementById('voiceGrid').innerHTML=list.map(v=>`<div class="voice-option ${state.pendingVoice===v.id?'selected':''}" data-modal-voice="${v.id}"><div class="voice-play">▶</div><div class="voice-copy"><b>${v.name}</b><p>${v.meta} · ${v.style}</p></div><div class="check">✓</div></div>`).join('')||'<div class="tiny">暂无匹配声音</div>';document.querySelectorAll('[data-modal-voice]').forEach(c=>c.onclick=()=>{state.pendingVoice=c.dataset.modalVoice;renderVoiceModal()})}
+function goManageAsset(tab){document.getElementById('avatarModal').classList.remove('show');document.getElementById('voiceModal').classList.remove('show');state.assetTab=tab;switchDigitalPage('assets');document.querySelectorAll('[data-asset-tab]').forEach(b=>b.classList.toggle('active',b.dataset.assetTab===tab));renderAssets();toast(tab==='avatar'?'可在数字人管理中新建数字人':'可在数字人管理中定制声音')}
+function generateDigital(){if(!document.getElementById('scriptInput').value.trim())return toast('请先输入口播文案');const g=document.getElementById('generation');g.classList.add('show');setTimeout(()=>{g.classList.remove('show');const id='t'+Date.now();tasks.unshift({id,name:document.getElementById('taskInput').value||'新建数字人视频',date:'刚刚',avatar:state.avatar.id,voice:state.voice,languages:[...state.languages],music:state.music,speed:Number(state.speed),subtitle:state.subtitle,script:document.getElementById('scriptInput').value});state.activeTask=id;state.viewMode='history';state.draftName='';state.draftScript='';renderDigital();toast('视频已生成并保存至作品库')},1100)}
+function startMaterialFromTask(){state.composeFromTask=true;state.composeStep=1;state.composeGenerated=false;state.composeFilter='all';state.selectedMedia=['m1','m2','m3'];state.timeline=['base','m1','m2','m3'];state.activeClip=0;setScreen('material');toast('已带入当前数字人口播视频')}
+function startMaterialEmpty(){state.composeFromTask=false;state.composeStep=1;state.composeGenerated=false;state.composeFilter='all';state.selectedMedia=['m1','m2'];state.timeline=['m1','m2'];state.activeClip=0;setScreen('material')}
+function selectedAssets(){return mediaLibrary.filter(m=>state.selectedMedia.includes(m.id))}
+function composeTotal(){return state.timeline.reduce((sum,id)=>sum+(mediaLibrary.find(m=>m.id===id)?.duration||0),0)}
+function formatSec(sec){const m=Math.floor(sec/60),s=Math.floor(sec%60);return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
+function renderCompose(){
+  document.querySelectorAll('[data-compose-step]').forEach((s,i)=>{const n=i+1;s.classList.toggle('active',n===state.composeStep);s.classList.toggle('done',n<state.composeStep)});
+  const body=document.getElementById('materialBody');
+  const prev=document.getElementById('materialPrev');
+  const regen=document.getElementById('materialRegen');
+  const next=document.getElementById('materialNext');
+  prev.classList.toggle('hidden',state.composeStep===1);
+  regen.classList.toggle('hidden',state.composeStep===1);
+  document.getElementById('materialFooter').classList.remove('hidden');
+  if(state.composeStep===1){
+    const filtered=mediaLibrary.filter(m=>m.id!=='base'&&(state.composeFilter==='all'||m.type===state.composeFilter));
+    body.innerHTML=`<div class="compose-setup"><section><div class="material-card"><h3>添加辅助素材</h3><div class="desc">当前数字人口播作为基础底片固定带入；这里只补充商品、场景或活动图片和视频。</div>${state.composeFromTask?`<div class="base-strip"><div class="base-logo">${avatarSvg(state.avatar)}</div><div class="base-copy"><b>${task().name}.mp4</b><span>数字人口播 · 8秒 · 原声音频将全程保留</span></div><span class="locked-chip">基础底片 · 已锁定</span></div>`:''}<div class="source-actions"><button class="primary-soft" id="fromLibrary">＋ 从素材库选择</button><button id="uploadLocal">＋ 本地上传</button></div><div class="asset-toolbar"><h4>可选辅助素材</h4><div class="filter-row"><button class="filter-chip ${state.composeFilter==='all'?'active':''}" data-filter="all">全部</button><button class="filter-chip ${state.composeFilter==='video'?'active':''}" data-filter="video">视频</button><button class="filter-chip ${state.composeFilter==='image'?'active':''}" data-filter="image">图片</button></div></div><div class="asset-pool">${filtered.map(m=>`<div class="media-item ${state.selectedMedia.includes(m.id)?'selected':''}" data-media-id="${m.id}"><div class="media-check">✓</div><div class="media-thumb">${m.icon}</div><b>${m.name}</b><span>${m.type==='video'?'视频':'图片'} · ${m.duration}秒 · ${m.source}</span></div>`).join('')}</div></div></section><aside class="setup-side"><div class="material-card"><h3>成片设置</h3><div class="desc">一期仅保留影响结果的基础设置。</div><div class="settings-list" style="margin-top:16px"><div class="setting-block"><label>视频比例</label><div class="choice-row">${['9:16','16:9','1:1'].map(x=>`<button class="choice ${state.composeRatio===x?'active':''}" data-setting="ratio" data-value="${x}">${x}</button>`).join('')}</div></div><div class="setting-block"><label>目标时长</label><div class="choice-row">${['自动','15秒','30秒','60秒'].map(x=>`<button class="choice ${state.composeDuration===x?'active':''}" data-setting="duration" data-value="${x}">${x}</button>`).join('')}</div></div><div class="setting-block"><label>编排方式</label><div class="choice-row">${['AI智能编排','按素材顺序'].map(x=>`<button class="choice ${state.composeOrder===x?'active':''}" data-setting="order" data-value="${x}">${x}</button>`).join('')}</div></div><div class="setting-block"><label>背景音乐</label><div class="choice-row">${['不添加','AI推荐','从素材库选择'].map(x=>`<button class="choice ${state.composeMusic===x?'active':''}" data-setting="music" data-value="${x}">${x}</button>`).join('')}</div></div></div><div class="setup-summary"><b>本次将使用</b><br>${state.composeFromTask?'1 条数字人口播底片 + ':''}${state.selectedMedia.length} 项辅助素材<br>${state.composeRatio} · ${state.composeDuration} · ${state.composeOrder}</div></div></aside></div>`;
+    body.querySelectorAll('[data-media-id]').forEach(c=>c.onclick=()=>{const id=c.dataset.mediaId;if(state.selectedMedia.includes(id))state.selectedMedia=state.selectedMedia.filter(x=>x!==id);else state.selectedMedia.push(id);renderCompose()});
+    body.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{state.composeFilter=b.dataset.filter;renderCompose()});
+    body.querySelectorAll('[data-setting]').forEach(b=>b.onclick=()=>{const key=b.dataset.setting,val=b.dataset.value;if(key==='ratio')state.composeRatio=val;if(key==='duration')state.composeDuration=val;if(key==='order')state.composeOrder=val;if(key==='music')state.composeMusic=val;renderCompose()});
+    document.getElementById('fromLibrary').onclick=()=>{state.composeFilter='all';toast('已展示素材库中的图片和视频')};
+    document.getElementById('uploadLocal').onclick=()=>{const id='u'+Date.now();mediaLibrary.push({id,name:'本地上传素材.mp4',type:'video',icon:'🎬',duration:5,source:'本地上传'});state.selectedMedia.push(id);renderCompose();toast('已上传并加入本次成片')};
+    next.textContent='AI生成成片';
+    document.getElementById('materialSummary').textContent=`${state.composeFromTask?'已带入 1 条数字人口播 · ':''}已选 ${state.selectedMedia.length} 项辅助素材`;
+  }else{
+    renderComposeResult(body);
+    next.textContent='保存并下载';
+    document.getElementById('materialSummary').textContent=`成片预览 · ${state.timeline.length} 个画面片段 · ${composeTotal()}秒`;
+  }
+}
+function renderComposeResult(body){
+  if(!state.composeGenerated){
+    body.innerHTML=`<div class="material-card generate-state"><div class="spinner"></div><h3>正在生成智能成片</h3><p>正在理解素材内容、匹配画面并对齐原口播音频…</p></div>`;
+    document.getElementById('materialFooter').classList.add('hidden');
+    setTimeout(()=>{state.composeGenerated=true;state.timeline=[...(state.composeFromTask?['base']:[]),...state.selectedMedia];if(state.composeOrder==='AI智能编排'&&state.timeline.length>2){const head=state.composeFromTask?['base']:[];const rest=state.timeline.filter(x=>x!=='base').sort(()=>Math.random()-.5);state.timeline=[...head,...rest]}state.activeClip=0;document.getElementById('materialFooter').classList.remove('hidden');renderCompose();toast('智能成片初版已生成，可通过轻量时间轴调整')},1100);
+    return;
+  }
+  const clip=mediaLibrary.find(m=>m.id===state.timeline[state.activeClip])||mediaLibrary[0];
+  const candidates=mediaLibrary.filter(m=>m.id!=='base'&&m.id!==clip.id);
+  const total=composeTotal();
+  const startSec=state.timeline.slice(0,state.activeClip).reduce((sum,id)=>sum+(mediaLibrary.find(x=>x.id===id)?.duration||0),0);
+  const endSec=startSec+clip.duration;
+  body.innerHTML=`<div class="result-shell"><div class="result-layout"><aside class="replace-panel"><h3>替换素材</h3><div class="tiny" style="margin-bottom:10px">点击候选素材可直接替换当前画面片段</div><div class="replace-list">${candidates.map(m=>`<button class="replace-item" data-replace="${m.id}"><span class="replace-thumb">${m.icon}</span><span><b>${m.name}</b><span>${m.type==='video'?'视频':'图片'} · ${m.duration}秒</span></span></button>`).join('')}</div><button class="panel-action primary-soft" id="uploadReplacement">＋ 本地上传替换</button></aside><section class="result-preview"><div class="result-canvas"><div class="result-video"><span class="scene-label">${clip.id==='base'?'数字人画面':clip.type==='video'?'视频素材':'图片素材'}</span><div class="scene-emoji">${clip.id==='base'?avatarSvg(state.avatar):clip.icon}</div><span class="playhead-label">当前片段 ${state.activeClip+1}/${state.timeline.length}</span></div></div></section><aside class="result-side"><h3>当前画面</h3><div class="clip-setting"><b>${clip.id==='base'?task().name:clip.name}</b><p>${clip.source} · ${clip.type==='video'?'视频':'图片'} · 当前时长 ${clip.duration} 秒</p><div class="tiny" style="margin:4px 0 10px">出现位置：${formatSec(startSec)} — ${formatSec(endSec)}</div><label class="tiny">展示时长：<span id="durationText">${clip.duration}</span> 秒</label><input type="range" id="clipDuration" min="1" max="12" value="${clip.duration}" style="width:100%;margin-top:8px"><div class="clip-actions"><button id="useAvatar">恢复数字人画面</button></div></div><div class="tiny" style="margin-top:14px;line-height:1.6">左侧替换素材和时长调整只影响当前画面；需要重新生成整条视频，请使用底部“重新成片”。</div></aside></div><div class="timeline-wrap"><div class="timeline-head"><h3>轻量时间轴</h3><span class="tiny">只调整画面顺序、素材和时长；原口播音频全程连续</span></div><div class="time-ruler"><span>0秒</span><span>${Math.round(total/2)}秒</span><span>${total}秒</span></div><div class="track-row"><div class="track-label">画面轨</div><div class="track">${state.timeline.map((id,i)=>{const m=mediaLibrary.find(x=>x.id===id);return `<div class="visual-clip ${state.activeClip===i?'active':''}" data-clip="${i}" style="flex-basis:${Math.max(94,m.duration*22)}px"><div class="thumb">${m.id==='base'?'🎙️':m.icon}</div><b>${m.id==='base'?'数字人画面':m.name}</b><span>${m.duration}秒</span></div>`}).join('')}<button class="add-clip" id="addClip">＋ 添加素材</button></div></div><div class="track-row"><div class="track-label">口播音轨</div><div class="track"><div class="audio-strip"><span>🎙️ 原数字人口播音频 · 全程连续</span><span class="lock">🔒 已锁定</span></div></div></div>${state.composeMusic!=='不添加'?`<div class="track-row"><div class="track-label">背景音乐</div><div class="track"><div class="audio-strip music"><span>♫ ${state.composeMusic==='AI推荐'?'AI推荐轻音乐':state.composeMusic}</span><span class="lock">音量 20%</span></div></div></div>`:''}</div></div>`;
+  body.querySelectorAll('[data-clip]').forEach(c=>c.onclick=()=>{state.activeClip=Number(c.dataset.clip);renderCompose()});
+  body.querySelectorAll('[data-replace]').forEach(b=>b.onclick=()=>{state.timeline[state.activeClip]=b.dataset.replace;renderCompose();toast('已替换当前画面片段')});
+  document.getElementById('clipDuration').oninput=e=>{clip.duration=Number(e.target.value);document.getElementById('durationText').textContent=e.target.value;document.getElementById('materialSummary').textContent=`成片预览 · ${state.timeline.length} 个画面片段 · ${composeTotal()}秒`;renderCompose()};
+  document.getElementById('useAvatar').onclick=()=>{if(state.timeline[state.activeClip]==='base')return toast('当前片段已是数字人画面');state.timeline[state.activeClip]='base';renderCompose();toast('当前片段已恢复数字人画面')};
+  document.getElementById('addClip').onclick=()=>{const add=mediaLibrary.find(m=>m.id!=='base'&&!state.timeline.includes(m.id));if(!add)return toast('暂无更多素材');state.timeline.push(add.id);state.activeClip=state.timeline.length-1;renderCompose()};
+  document.getElementById('uploadReplacement').onclick=()=>{const id='r'+Date.now();mediaLibrary.push({id,name:'新上传替换素材.mp4',type:'video',icon:'🎬',duration:5,source:'本地上传'});state.timeline[state.activeClip]=id;renderCompose();toast('已上传并替换当前片段')};
+}
+function moveClip(delta){const next=state.activeClip+delta;if(next<0||next>=state.timeline.length)return;[state.timeline[state.activeClip],state.timeline[next]]=[state.timeline[next],state.timeline[state.activeClip]];state.activeClip=next;renderCompose()}
+function regenerateCompose(){state.composeGenerated=false;state.activeClip=0;renderCompose();toast('正在根据当前素材与设置重新生成整条成片')}
+function nextCompose(){if(state.composeStep===1){if(state.selectedMedia.length<1)return toast('请至少选择 1 项辅助素材');state.composeStep=2;state.composeGenerated=false;state.activeClip=0;renderCompose()}else{toast('智能成片已保存至作品库，并开始下载')}}
+function prevCompose(){if(state.composeStep===2){state.composeStep=1;state.composeGenerated=false;renderCompose()}}
+function assetStatus(item){return item.status||'可使用'}
+function renderAssets(){
+  document.querySelectorAll('[data-asset-tab]').forEach(b=>b.classList.toggle('active',b.dataset.assetTab===state.assetTab));
+  const isAvatar=state.assetTab==='avatar';
+  const search=document.getElementById('assetSearch');
+  search.placeholder=isAvatar?'搜索我的数字人':'搜索我的声音';
+  if(search.value!==state.assetSearch)search.value=state.assetSearch;
+  document.getElementById('newAssetBtn').textContent=isAvatar?'＋ 创建数字人':'＋ 定制声音';
+  document.getElementById('assetTabHint').textContent=isAvatar?'数字人训练完成后，可在视频创作中直接选择':'声音定制完成后，可与任意数字人形象组合使用';
+  const q=(state.assetSearch||'').trim().toLowerCase();
+  const grid=document.getElementById('assetGrid');
+  let list;
+  if(isAvatar){
+    list=avatars.filter(a=>a.source==='mine'&&(a.name+a.style+a.scene).toLowerCase().includes(q));
+    document.getElementById('assetCountText').innerHTML=`共 <b>${list.length}</b> 个我的数字人`;
+    grid.innerHTML=list.map(a=>{const status=assetStatus(a);return `<article class="asset-card-v2"><div class="asset-visual">${avatarSvg(a)}<span class="asset-status ${status==='训练中'?'training':''}">${status}</span></div><div class="asset-info"><div class="asset-name-row"><b>${a.name}</b><span class="asset-kind">数字人形象</span></div><p class="asset-meta">${a.style} · ${a.scene}<br>形象训练 · ${a.created||'最近更新 7月20日'}</p><div class="asset-recent">默认声音：${a.defaultVoice||'未绑定，可在创作时选择'}</div></div><div class="asset-card-actions"><button data-asset-preview="avatar:${a.id}">预览</button><button class="asset-use" data-asset-use="avatar:${a.id}" ${status!=='可使用'?'disabled':''}>创建视频</button></div></article>`}).join('');
+  }else{
+    list=Object.values(voices).filter(v=>v.source==='mine'&&(v.name+v.meta+v.style).toLowerCase().includes(q));
+    document.getElementById('assetCountText').innerHTML=`共 <b>${list.length}</b> 个我的声音`;
+    grid.innerHTML=list.map(v=>{const status=assetStatus(v);return `<article class="asset-card-v2"><div class="asset-visual"><div class="voice-cover">🎙️</div><div class="voice-bars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="asset-status ${status==='训练中'?'training':''}">${status}</span></div><div class="asset-info"><div class="asset-name-row"><b>${v.name}</b><span class="asset-kind">定制声音</span></div><p class="asset-meta">${v.meta.replace('我的声音 · ','')} · ${v.style}<br>声音训练 · ${v.created||'最近更新 7月20日'}</p><div class="asset-recent">建议用途：${v.useCase||'品牌口播、商品讲解'}</div></div><div class="asset-card-actions"><button data-asset-preview="voice:${v.id}">试听</button><button class="asset-use" data-asset-use="voice:${v.id}" ${status!=='可使用'?'disabled':''}>创建视频</button></div></article>`}).join('');
+  }
+  if(!list.length){grid.innerHTML=`<div class="asset-empty"><div><div style="font-size:42px;margin-bottom:12px">${isAvatar?'◉':'🎙️'}</div><strong>${q?'没有找到匹配资产':isAvatar?'还没有创建数字人':'还没有定制声音'}</strong><span>${q?'尝试更换搜索关键词。':isAvatar?'上传训练视频并完成授权后，即可在创作时使用。':'上传清晰声音样本，生成你的专属声音。'}</span>${q?'':`<br><button class="primary" data-empty-create>${isAvatar?'＋ 创建数字人':'＋ 定制声音'}</button>`}</div></div>`}
+  bindAssetGridActions();
+}
+function bindAssetGridActions(){
+  document.querySelectorAll('[data-asset-preview]').forEach(b=>b.onclick=()=>openAssetPreview(...b.dataset.assetPreview.split(':')));
+  document.querySelectorAll('[data-asset-use]').forEach(b=>b.onclick=()=>useAssetForCreation(...b.dataset.assetUse.split(':')));
+  document.querySelector('[data-empty-create]')?.addEventListener('click',()=>openCreateAsset(state.assetTab));
+}
+function openCreateAsset(type){
+  state.createAssetType=type;state.trainingType=type==='voice'?'voice':'figure';state.createFigureReady=false;state.createVoiceReady=false;state.createUploadReady=false;
+  document.getElementById('createAssetTitle').textContent=type==='avatar'?'新建数字人':'定制声音';
+  document.getElementById('submitCreateAsset').textContent=type==='avatar'?'提交训练':'开始定制';
+  renderCreateAssetForm();document.getElementById('createAssetModal').classList.add('show');
+}
+function renderCreateAssetForm(){
+  const body=document.getElementById('createAssetBody');
+  if(state.createAssetType==='avatar'){
+    const needsFigure=state.trainingType==='figure'||state.trainingType==='both';
+    const needsVoice=state.trainingType==='voice'||state.trainingType==='both';
+    body.innerHTML=`<div class="create-intro">选择本次需要训练的数字人能力。训练期间可以离开当前页面，完成后会进入相应列表。</div><div class="form-grid"><div class="form-item full"><label>名称 *</label><input id="createAssetName" placeholder="例如：品牌主播小王"></div><div class="form-item full"><label>训练类型</label><select id="trainingTypeSelect"><option value="figure" ${state.trainingType==='figure'?'selected':''}>figure（仅形象）</option><option value="voice" ${state.trainingType==='voice'?'selected':''}>voice（仅声音）</option><option value="both" ${state.trainingType==='both'?'selected':''}>both（形象＋声音）</option></select></div>${needsFigure?`<div class="form-item full"><label>训练视频 *</label><div class="upload-box ${state.createFigureReady?'ready':''}" id="figureUploadBox"><div class="upload-icon">${state.createFigureReady?'✓':'⇧'}</div><b>${state.createFigureReady?'已选择：数字人训练视频.mp4':'点击选择或拖入训练视频'}</b><span>建议正面半身、光线稳定、时长 1—3 分钟</span></div></div>`:''}${needsVoice?`<div class="form-item"><label>声音语言（支持 16 种）</label><select id="createVoiceLanguage">${voiceLanguageOptions}</select></div><div class="form-item full"><label>声音样本 *</label><div class="upload-box ${state.createVoiceReady?'ready':''}" id="voiceUploadBox"><div class="upload-icon">${state.createVoiceReady?'✓':'⇧'}</div><b>${state.createVoiceReady?'已选择：声音样本.wav':'点击选择或拖入音频文件'}</b><span>支持 MP3 / WAV，建议 30 秒以上清晰连续人声</span></div></div>`:''}<div class="form-item full"><label class="consent-row"><input type="checkbox" id="createConsent"><span>我确认拥有所提交形象及声音素材的合法授权，并同意平台进行训练与合规审核。</span></label></div></div>`;
+  }else{
+    body.innerHTML=`<div class="create-intro">上传清晰、无背景音乐的声音样本。定制完成后，可在视频创作中与任意数字人形象组合使用。</div><div class="form-grid"><div class="form-item"><label>声音名称 *</label><input id="createAssetName" placeholder="例如：品牌主播专属声音"></div><div class="form-item"><label>声音语言（支持 16 种）</label><select id="createVoiceLanguage">${voiceLanguageOptions}</select></div><div class="form-item full"><label>声音样本 *</label><div class="upload-box ${state.createUploadReady?'ready':''}" id="createUploadBox"><div class="upload-icon">${state.createUploadReady?'✓':'⇧'}</div><b>${state.createUploadReady?'已选择：声音样本.wav':'点击选择或拖入音频文件'}</b><span>支持 MP3 / WAV，建议 30 秒以上清晰连续人声</span></div></div><div class="form-item full"><label>声音描述（可选）</label><textarea id="createVoiceDesc" placeholder="例如：亲和自然、适合美妆种草和商品讲解"></textarea></div><div class="form-item full"><label class="consent-row"><input type="checkbox" id="createConsent"><span>我确认拥有该声音样本的使用与克隆授权。</span></label></div></div>`;
+  }
+  document.getElementById('trainingTypeSelect')?.addEventListener('change',e=>{const name=document.getElementById('createAssetName')?.value||'';state.trainingType=e.target.value;state.createFigureReady=false;state.createVoiceReady=false;renderCreateAssetForm();document.getElementById('createAssetName').value=name});
+  document.getElementById('figureUploadBox')?.addEventListener('click',()=>{state.createFigureReady=true;const name=document.getElementById('createAssetName')?.value||'';const lang=document.getElementById('createVoiceLanguage')?.value||'中文';renderCreateAssetForm();document.getElementById('createAssetName').value=name;if(document.getElementById('createVoiceLanguage'))document.getElementById('createVoiceLanguage').value=lang});
+  document.getElementById('voiceUploadBox')?.addEventListener('click',()=>{state.createVoiceReady=true;const name=document.getElementById('createAssetName')?.value||'';const lang=document.getElementById('createVoiceLanguage')?.value||'中文';renderCreateAssetForm();document.getElementById('createAssetName').value=name;if(document.getElementById('createVoiceLanguage'))document.getElementById('createVoiceLanguage').value=lang});
+  document.getElementById('createUploadBox')?.addEventListener('click',()=>{state.createUploadReady=true;const name=document.getElementById('createAssetName')?.value||'';const lang=document.getElementById('createVoiceLanguage')?.value||'中文';const desc=document.getElementById('createVoiceDesc')?.value||'';renderCreateAssetForm();document.getElementById('createAssetName').value=name;if(document.getElementById('createVoiceLanguage'))document.getElementById('createVoiceLanguage').value=lang;if(document.getElementById('createVoiceDesc'))document.getElementById('createVoiceDesc').value=desc});
+}
+function submitCreateAsset(){
+  const name=(document.getElementById('createAssetName')?.value||'').trim();
+  const consent=document.getElementById('createConsent')?.checked;
+  if(!name)return toast('请填写资产名称');
+  if(state.createAssetType==='avatar'){
+    const needsFigure=state.trainingType==='figure'||state.trainingType==='both';
+    const needsVoice=state.trainingType==='voice'||state.trainingType==='both';
+    if(needsFigure&&!state.createFigureReady)return toast('请先上传训练视频');
+    if(needsVoice&&!state.createVoiceReady)return toast('请先上传声音样本');
+  }else if(!state.createUploadReady)return toast('请先上传声音样本');
+  if(!consent)return toast('请先确认授权与合规声明');
+  if(state.createAssetType==='avatar'){
+    const now=Date.now();const lang=document.getElementById('createVoiceLanguage')?.value||'中文';
+    let avatarId=null,voiceId=null;
+    if(state.trainingType==='figure'||state.trainingType==='both'){
+      avatarId='mine_'+now;avatars.push({id:avatarId,name,source:'mine',style:'专属真人数字人',scene:'通用口播',bg:'#e4ebf8',hair:'#2b2528',skin:'#e9b48f',shirt:'#617467',method:'figure',status:'训练中',created:'刚刚',defaultVoice:state.trainingType==='both'?name+'专属声音':null});
+    }
+    if(state.trainingType==='voice'||state.trainingType==='both'){
+      voiceId='mv_'+now;voices[voiceId]={id:voiceId,name:state.trainingType==='both'?name+'专属声音':name,meta:`我的声音 · ${lang}`,source:'mine',style:'品牌专属',status:'训练中',created:'刚刚'};
+    }
+    document.getElementById('createAssetModal').classList.remove('show');state.assetSearch='';
+    if(state.trainingType==='voice')state.assetTab='voice';
+    renderAssets();toast(state.trainingType==='both'?'已提交形象与声音训练':state.trainingType==='voice'?'已提交声音训练':'已提交形象训练');
+    setTimeout(()=>{if(avatarId){const a=avatars.find(x=>x.id===avatarId);if(a)a.status='可使用'}if(voiceId&&voices[voiceId])voices[voiceId].status='可使用';renderAssets();toast(name+' 训练已完成')},1800);
+  }else{
+    const id='mv_'+Date.now();const lang=document.getElementById('createVoiceLanguage')?.value||'中文';const desc=(document.getElementById('createVoiceDesc')?.value||'').trim();voices[id]={id,name,meta:`我的声音 · ${lang}`,source:'mine',style:desc||'亲和自然',status:'训练中',created:'刚刚'};
+    document.getElementById('createAssetModal').classList.remove('show');state.assetSearch='';renderAssets();toast('已提交声音定制，可稍后回来查看进度');
+    setTimeout(()=>{if(voices[id]){voices[id].status='可使用';if(state.digitalPage==='assets'&&state.assetTab==='voice')renderAssets();toast(name+' 已定制完成')}},1800);
+  }
+}
+function openAssetPreview(type,id){
+  state.previewAsset={type,id};const isAvatar=type==='avatar';const item=isAvatar?avatars.find(a=>a.id===id):voices[id];
+  document.getElementById('assetPreviewTitle').textContent=isAvatar?'数字人预览':'声音试听';
+  document.getElementById('previewUseBtn').disabled=assetStatus(item)!=='可使用';
+  document.getElementById('previewUseBtn').textContent=assetStatus(item)==='可使用'?'创建视频':'训练完成后可使用';
+  document.getElementById('assetPreviewBody').innerHTML=`<div class="asset-preview-content"><div class="asset-preview-visual">${isAvatar?avatarSvg(item):'<div class="voice-cover">🎙️</div>'}</div><div class="preview-details"><h3>${item.name}</h3><p>${isAvatar?'预览当前数字人的形象与构图效果。实际口型和动作以生成结果为准。':'试听当前定制声音的音色、语速和表达风格。'}</p><div class="preview-facts"><div class="preview-fact"><span>资产类型</span><b>${isAvatar?'数字人形象':'定制声音'}</b></div><div class="preview-fact"><span>状态</span><b>${assetStatus(item)}</b></div><div class="preview-fact"><span>${isAvatar?'适用场景':'语言与风格'}</span><b>${isAvatar?item.scene:item.meta.replace('我的声音 · ','')+' · '+item.style}</b></div><div class="preview-fact"><span>创建时间</span><b>${item.created||'7月20日'}</b></div></div>${isAvatar?'':`<button class="ghost" id="listenPreviewBtn" style="margin-top:16px">▶ 播放试听示例</button>`}</div></div>`;
+  document.getElementById('listenPreviewBtn')?.addEventListener('click',()=>toast('正在试听 '+item.name));
+  document.getElementById('assetPreviewModal').classList.add('show');
+}
+function useAssetForCreation(type,id){
+  const item=type==='avatar'?avatars.find(a=>a.id===id):voices[id];if(assetStatus(item)!=='可使用')return toast('资产仍在训练中');
+  switchDigitalPage('video');newVideo();state.showNewVideoGuide=false;if(type==='avatar')state.avatar=item;else state.voice=id;renderDigital();toast('已将 '+item.name+' 用于新视频');
+}
+
+state.showNewVideoGuide=false;
+const newVideoGuide=document.createElement('section');
+newVideoGuide.id='newVideoGuide';
+newVideoGuide.className='new-video-guide';
+newVideoGuide.innerHTML=`<div class="new-video-guide-inner"><div class="new-video-guide-icon">◎</div><h2>开始创建数字人视频</h2><p>先创建专属数字人形象和声音，完成后即可输入文案生成视频。</p><div class="new-video-guide-actions"><button class="primary" id="guideCreateAvatar" type="button">＋ 创建数字人形象</button><button id="guideCreateVoice" type="button">＋ 定制声音</button></div><div class="new-video-guide-note">完成训练后，可在数字人管理中选择使用</div></div>`;
+document.querySelector('.editor').appendChild(newVideoGuide);
+function renderNewVideoGuide(){newVideoGuide.classList.toggle('show',state.viewMode==='edit'&&state.showNewVideoGuide===true)}
+document.getElementById('guideCreateAvatar').onclick=()=>openCreateAsset('avatar');
+document.getElementById('guideCreateVoice').onclick=()=>openCreateAsset('voice');
+/* V2.7 MVP: controllable avatar video creation and edit-friendly export */
+tasks.forEach(t=>{t.status=t.status||'completed';t.progress=t.progress??100;t.version=t.version||'V1'});
+tasks.push(
+  {id:'t_queue',name:'七夕礼盒多语言版',date:'刚刚',avatar:'a3',voice:'v2',languages:['zh','en'],music:'清新氛围',speed:1,subtitle:true,script:'七夕限定礼盒正式上线，送礼和自用都很合适。',status:'processing',progress:12,version:'V2'},
+  {id:'t_processing',name:'防晒新品矩阵口播',date:'2分钟前',avatar:'m2',voice:'v1',languages:['zh','en','ja'],music:'轻快种草',speed:1.1,subtitle:true,script:'夏日通勤怕晒黑，这款轻薄防晒值得试试。',status:'processing',progress:62,version:'V3'},
+  {id:'t_failed',name:'会员日促销口播',date:'8分钟前',avatar:'m1',voice:'mv1',languages:['zh'],music:'欢腾新春',speed:1,subtitle:true,script:'会员日限时福利，今晚八点准时开抢。',status:'failed',progress:38,version:'V1'}
+);
+state.historyFilter='all';
+state.scenes=[];
+state.outputRatio='9:16';
+state.outputShot='半身居中';
+state.outputBackground='保留背景';
+state.outputQuality='1080P';
+
+const historySubhead=document.querySelector('.history-subhead');
+historySubhead.innerHTML='<span>最近作品</span><span>自动更新</span>';
+
+const scriptField=[...document.querySelectorAll('.field')].find(x=>x.querySelector('label')?.textContent==='口播文案');
+const sceneBuilder=document.createElement('div');
+sceneBuilder.className='scene-builder';
+sceneBuilder.id='sceneBuilder';
+sceneBuilder.innerHTML='<div class="scene-builder-head"><b>逐句表达控制</b><button id="splitScenes" type="button">按句拆分</button></div><div class="scene-list" id="sceneList"><div class="tiny">输入文案后，可逐句设置语气和动作。</div></div>';
+scriptField.insertAdjacentElement('afterend',sceneBuilder);
+
+const outputControls=document.createElement('div');
+outputControls.className='output-controls';
+outputControls.id='outputControls';
+outputControls.innerHTML='<h4>画面与导出设置</h4><div class="output-block"><label>视频比例</label><div class="segmented" data-output-setting="outputRatio"><button class="active" data-value="9:16">9:16</button><button data-value="16:9">16:9</button><button data-value="1:1">1:1</button></div></div><div class="output-block"><label>数字人构图</label><div class="segmented" data-output-setting="outputShot"><button class="active" data-value="半身居中">半身居中</button><button data-value="左侧留白">左侧留白</button><button data-value="右侧留白">右侧留白</button></div></div><div class="output-block"><label>背景输出</label><div class="segmented" data-output-setting="outputBackground"><button class="active" data-value="保留背景">保留背景</button><button data-value="绿幕">绿幕</button><button data-value="透明背景">透明背景</button></div></div>';
+document.getElementById('basicSettings').insertAdjacentElement('afterend',outputControls);
+
+const preflight=document.createElement('div');
+preflight.className='preflight';
+preflight.id='preflight';
+preflight.innerHTML='<h4>生成前检查</h4><div class="preflight-grid"><div class="preflight-item"><span>输出语言</span><b id="checkVersions">中文</b></div><div class="preflight-item"><span>画质与比例</span><b id="checkSpecs">1080P · 9:16</b></div><div class="preflight-item"><span>预计时长</span><b id="checkDuration">约 0 秒</b></div><div class="preflight-item"><span>预计消耗</span><b id="checkCost">¥ 0.00</b></div></div><div class="preflight-warn" id="checkWarning">✓ 输入文案后将检查品牌词、敏感词和发音风险</div><div class="preflight-actions"><button id="previewFullVoice" type="button">▶ 生成 5 秒预览</button><button id="reviewTranslation" type="button">中/外文审核</button></div>';
+outputControls.insertAdjacentElement('afterend',preflight);
+
+document.body.insertAdjacentHTML('beforeend',`
+<div class="modal" id="translationReviewModal"><div class="dialog translation-review"><div class="dialog-head"><h3>多语言翻译审核</h3><button class="close" data-close-v26="translationReviewModal">×</button></div><div class="dialog-body"><div class="brand-glossary"><b>品牌术语表已启用</b>　MindSync 保留英文；“买一送一”按营销语境翻译。生成前可逐条修改译文并试听。</div><div class="translation-table" id="translationTable"></div></div><div class="dialog-foot"><span class="tiny">所有译文已通过基础检查</span><div class="dialog-spacer"></div><button class="ghost" data-close-v26="translationReviewModal">取消</button><button class="primary" id="approveTranslation">确认译文</button></div></div></div>
+<div class="modal" id="generateConfirmModal"><div class="dialog" style="width:min(520px,96vw)"><div class="dialog-head"><h3>确认生成</h3><button class="close" data-close-v26="generateConfirmModal">×</button></div><div class="dialog-body"><div class="completed-notice"><b>生成配置已检查</b><br><span id="generateConfirmText"></span></div><div class="preview-facts"><div class="preview-fact"><span>输出规格</span><b id="confirmSpecs">1080P · 9:16</b></div><div class="preview-fact"><span>预计等待</span><b>约 3—5 分钟</b></div><div class="preview-fact"><span>保存方式</span><b>生成一条新作品</b></div></div></div><div class="dialog-foot"><button class="ghost" data-close-v26="generateConfirmModal">返回修改</button><div class="dialog-spacer"></div><button class="primary" id="confirmGenerateV26">确认并生成</button></div></div></div>
+<div class="modal" id="fiveSecondPreviewModal"><div class="dialog" style="width:min(500px,96vw)"><div class="dialog-head"><h3>5 秒效果预览</h3><button class="close" data-close-v26="fiveSecondPreviewModal">×</button></div><div class="dialog-body"><div class="preview-demo"><div class="preview-person" id="previewPerson"></div><span class="preview-countdown" id="previewCountdown">正在生成预览…</span></div><div class="pack-summary">预览仅用于确认口型、声音、构图和动作，不消耗正式生成额度。</div></div><div class="dialog-foot"><button class="ghost" data-close-v26="fiveSecondPreviewModal">返回修改</button><div class="dialog-spacer"></div><button class="primary" id="previewLooksGood">效果符合预期</button></div></div></div>`);
+
+function splitSceneText(text){
+  const clean=(text||'').trim();
+  if(!clean)return [];
+  let parts=clean.split(/[。！？；\n]+/).map(x=>x.trim()).filter(Boolean);
+  if(parts.length===1&&clean.length>28)parts=[clean.slice(0,Math.ceil(clean.length/2)),clean.slice(Math.ceil(clean.length/2))];
+  const labels=['痛点开场','商品亮相','核心卖点','使用场景','行动号召'];
+  return parts.slice(0,6).map((copy,i)=>({label:labels[Math.min(i,labels.length-1)],copy,emotion:i===0?'热情':i===parts.length-1?'强调':'自然',action:i===0?'轻微招手':i===parts.length-1?'点头强调':'自然讲解'}));
+}
+function renderScenesV26(force=false){
+  const text=document.getElementById('scriptInput').value;
+  if(force||!state.scenes.length)state.scenes=splitSceneText(text);
+  const list=document.getElementById('sceneList');
+  list.innerHTML=state.scenes.length?state.scenes.map((s,i)=>`<div class="scene-row"><span class="scene-num">${i+1}</span><span class="scene-copy"><b>${s.label}</b><span>${s.copy}</span><span class="scene-controls"><select data-scene-emotion="${i}">${['自然','热情','专业','温柔','强调'].map(x=>`<option ${s.emotion===x?'selected':''}>${x}</option>`).join('')}</select><select data-scene-action="${i}">${['自然讲解','轻微招手','指向侧边','点头强调','保持静止'].map(x=>`<option ${s.action===x?'selected':''}>${x}</option>`).join('')}</select><button class="scene-preview" data-scene-preview="${i}">▶ 试听</button></span></span></div>`).join(''):'<div class="tiny">输入文案后，可逐句设置语气和动作。</div>';
+  list.querySelectorAll('[data-scene-emotion]').forEach(el=>el.onchange=()=>state.scenes[Number(el.dataset.sceneEmotion)].emotion=el.value);
+  list.querySelectorAll('[data-scene-action]').forEach(el=>el.onchange=()=>state.scenes[Number(el.dataset.sceneAction)].action=el.value);
+  list.querySelectorAll('[data-scene-preview]').forEach(el=>el.onclick=()=>{const s=state.scenes[Number(el.dataset.scenePreview)];toast(`试听：${s.emotion} · ${s.action}`)});
+}
+function refreshPreflightV26(){
+  const text=document.getElementById('scriptInput').value||'';
+  const count=text.replace(/\s/g,'').length;
+  const duration=Math.max(0,Math.ceil(count/(4*Number(state.speed||1))));
+  const versions=state.languages.length;
+  document.getElementById('checkVersions').textContent=state.languages.map(id=>(languageDefs.find(x=>x.id===id)||languageDefs[0]).name).join('、');
+  document.getElementById('checkSpecs').textContent=`${state.outputQuality} · ${state.outputRatio}`;
+  document.getElementById('checkDuration').textContent=`约 ${duration} 秒/条`;
+  document.getElementById('checkCost').textContent=`¥ ${(Math.max(1,duration)*versions*.05).toFixed(2)}`;
+  document.querySelector('#editFooter .hint').textContent=text?`预计 ${duration} 秒 · 约 ¥${(Math.max(1,duration)*versions*.05).toFixed(2)} · 生成后自动保存`:'输入文案后显示预计时长与费用';
+  document.getElementById('checkWarning').textContent=text?(text.includes('买一送一')?'⚠ 检测到营销词“买一送一”，多语言版本建议先审核译文':'✓ 文案、发音和基础合规检查通过'):'✓ 输入文案后将检查品牌词、敏感词和发音风险';
+  document.getElementById('reviewTranslation').disabled=versions<2;
+}
+function openTranslationReviewV26(){
+  if(state.languages.length<2)return toast('选择两种或以上语言后可进行翻译审核');
+  const source=document.getElementById('scriptInput').value||'请输入口播文案';
+  const samples={en:'Summer skincare should feel fresh, not sticky. Discover our limited-time offer today.',ja:'夏のスキンケアは、べたつかず爽やかに。期間限定キャンペーンをお見逃しなく。',ko:'여름 스킨케어는 끈적임 없이 산뜻하게. 기간 한정 혜택을 확인해 보세요.',es:'Este verano, disfruta de un cuidado fresco y ligero. Descubre nuestra oferta por tiempo limitado.'};
+  document.getElementById('translationTable').innerHTML=state.languages.map(id=>{const l=languageDefs.find(x=>x.id===id);return `<div class="translation-row"><div class="translation-lang">${l.name}</div><div class="translation-cell"><small>原文</small>${source}</div><div class="translation-cell" contenteditable="${id!=='zh'}"><small>${id==='zh'?'当前文案':'可编辑译文'}</small>${id==='zh'?source:(samples[id]||source)}</div></div>`}).join('');
+  document.getElementById('translationReviewModal').classList.add('show');
+}
+
+const renderHistoryBaseV26=renderHistory;
+renderHistory=function(){
+  const statusName={completed:'已完成',processing:'处理中',failed:'失败'};
+  const list=[...tasks].sort((a,b)=>a.status==='processing'&&b.status!=='processing'?-1:b.status==='processing'&&a.status!=='processing'?1:0);
+  document.getElementById('historyList').innerHTML=list.map(t=>{const a=avatars.find(x=>x.id===t.avatar)||avatars[0];return `<div class="history-card ${state.activeTask===t.id?'active':''}" data-task="${t.id}"><div class="history-thumb">${avatarSvg(a)}<span class="task-badge ${t.status}">${statusName[t.status]}</span></div><div><b>${t.name}</b><p>${t.date}</p>${t.status==='failed'?'<button class="helper" type="button">查看原因 / 重试</button>':''}${t.status==='processing'?`<div class="history-progress"><i style="width:${t.progress}%"></i></div>`:''}</div></div>`}).join('')||'<div class="tiny" style="padding:20px 4px">暂无作品</div>';
+  document.querySelectorAll('[data-task]').forEach(el=>el.onclick=()=>loadTask(el.dataset.task));
+};
+
+const renderDigitalBaseV26=renderDigital;
+renderDigital=function(){
+  renderDigitalBaseV26();
+  const t=task();
+  document.getElementById('smartComposeBtn').textContent='';
+  document.getElementById('downloadTask').textContent='下载视频';
+  document.querySelector('#historyFooter .hint').textContent='下载后可导入剪映继续添加商品素材、音乐和包装效果';
+  if(state.viewMode==='history'&&(!t.status||t.status==='completed')){
+    document.getElementById('completedNotice').innerHTML='<b>视频已生成</b><br>可直接下载视频，或导入剪映继续编辑。';
+  }
+  if(state.viewMode==='history'&&t.status&&t.status!=='completed'){
+    const names={processing:`处理中 · ${t.progress}%`,failed:'失败 · 音频合成超时'};
+    document.getElementById('taskStatus').textContent=names[t.status];
+    document.getElementById('completedNotice').innerHTML=t.status==='failed'?'<b>本次生成未完成</b><br>音频合成服务超时，未扣除额度。可复制当前配置并重试。':`<b>${names[t.status]}</b><br>任务会在后台继续执行，完成后自动更新，无需停留在当前页面。`;
+    document.getElementById('historyFooter').classList.add('hidden');
+  }
+  renderScenesV26(true);
+  refreshPreflightV26();
+  renderNewVideoGuide();
+};
+
+function runGenerationV26(){
+  document.getElementById('generateConfirmModal').classList.remove('show');
+  const id='t'+Date.now();
+  const newTask={id,name:document.getElementById('taskInput').value||'新建数字人视频',date:'刚刚',avatar:state.avatar.id,voice:state.voice,languages:[...state.languages],music:state.music,speed:Number(state.speed),subtitle:state.subtitle,script:document.getElementById('scriptInput').value,status:'processing',progress:8,version:'V1',outputRatio:state.outputRatio,outputShot:state.outputShot,outputBackground:state.outputBackground,scenes:[...state.scenes]};
+  tasks.unshift(newTask);state.activeTask=id;state.viewMode='history';state.historyFilter='all';renderDigital();toast('任务已提交，可离开页面继续其他工作');
+  setTimeout(()=>{newTask.status='processing';newTask.progress=36;renderHistory()},900);
+  setTimeout(()=>{newTask.progress=78;renderHistory()},1800);
+  setTimeout(()=>{newTask.status='completed';newTask.progress=100;renderDigital();toast('数字人视频已生成完成')},3000);
+}
+generateDigital=function(){
+  const text=document.getElementById('scriptInput').value.trim();
+  if(!text)return toast('请先输入口播文案');
+  const duration=Math.max(1,Math.ceil(text.replace(/\s/g,'').length/(4*Number(state.speed||1))));
+  document.getElementById('generateConfirmText').textContent=`预计生成 ${duration} 秒视频，消耗约 ¥${(duration*state.languages.length*.05).toFixed(2)}。`;
+  document.getElementById('confirmSpecs').textContent=`${state.outputQuality} · ${state.outputRatio} · ${state.outputShot} · ${state.outputBackground}`;
+  document.getElementById('generateConfirmModal').classList.add('show');
+};
+
+document.getElementById('splitScenes').onclick=()=>{renderScenesV26(true);toast('已拆分为 '+state.scenes.length+' 个可控语句')};
+document.querySelectorAll('[data-output-setting]').forEach(group=>group.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{state[group.dataset.outputSetting]=btn.dataset.value;group.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===btn));refreshPreflightV26();document.getElementById('canvas').style.background=state.outputBackground==='绿幕'?'#10a84b':state.outputBackground==='透明背景'?'repeating-conic-gradient(#eef1f6 0 25%,#fff 0 50%) 50%/20px 20px':state.background.css;toast('已设置 '+btn.dataset.value)}));
+document.getElementById('previewFullVoice').onclick=()=>{if(!document.getElementById('scriptInput').value.trim())return toast('请先输入口播文案');document.getElementById('previewPerson').innerHTML=avatarSvg(state.avatar,true);document.getElementById('previewCountdown').textContent='正在生成 5 秒预览…';document.getElementById('fiveSecondPreviewModal').classList.add('show');setTimeout(()=>document.getElementById('previewCountdown').textContent='▶ 预览就绪 · 0:05',900)};
+document.getElementById('reviewTranslation').onclick=openTranslationReviewV26;
+document.getElementById('approveTranslation').onclick=()=>{document.getElementById('translationReviewModal').classList.remove('show');toast('译文已确认并锁定')};
+document.getElementById('confirmGenerateV26').onclick=runGenerationV26;
+document.getElementById('previewLooksGood').onclick=()=>{document.getElementById('fiveSecondPreviewModal').classList.remove('show');toast('已确认预览效果，可生成完整视频')};
+document.querySelectorAll('[data-close-v26]').forEach(b=>b.onclick=()=>document.getElementById(b.dataset.closeV26).classList.remove('show'));
+
+const renderToolMvpBase=renderTool;
+renderTool=function(tool){
+  renderToolMvpBase(tool);
+  if(tool==='music'){
+    const note=[...document.querySelectorAll('#toolBody .tiny')].find(x=>x.textContent.includes('智能成片'));
+    if(note)note.textContent='背景音乐用于轻量增强；商品图片、贴纸和转场可在下载素材包后进入剪映继续制作。';
+  }
+};
+
+document.getElementById('navDigital').onclick=()=>{state.digitalPage='video';switchDigitalPage('video')};
+document.querySelectorAll('[data-digital-page]').forEach(b=>b.onclick=()=>switchDigitalPage(b.dataset.digitalPage));
+document.getElementById('newVideoBtn').onclick=newVideo;
+document.getElementById('downloadTask').onclick=()=>toast('正在下载 1080P 视频');
+document.querySelectorAll('.tool-btn').forEach(b=>b.onclick=()=>renderTool(b.dataset.tool));
+document.getElementById('closeTool').onclick=()=>document.getElementById('toolPanel').classList.remove('show');
+document.getElementById('avatarSelector').onclick=e=>{e.stopPropagation();toggleInlinePicker('avatar')};
+document.getElementById('voiceSelector').onclick=e=>{e.stopPropagation();toggleInlinePicker('voice')};
+document.getElementById('languageSelector').onclick=e=>{e.stopPropagation();toggleInlinePicker('language')};
+document.getElementById('speedRange').oninput=e=>{if(state.viewMode!=='edit')return;state.speed=Number(e.target.value);document.getElementById('speedValue').textContent=state.speed.toFixed(1);refreshPreflightV26()};
+document.getElementById('subtitleSwitch').onclick=e=>{if(state.viewMode!=='edit')return;state.subtitle=!state.subtitle;e.currentTarget.classList.toggle('on',state.subtitle)};
+document.getElementById('generateBtn').onclick=generateDigital;
+document.getElementById('previewVoice').onclick=()=>toast('正在试听 '+(voices[state.voice]||voices.v1).name);
+document.getElementById('optimizeScript').onclick=()=>toast('已优化口播表达');
+document.getElementById('shortenScript').onclick=()=>toast('已精简口播文案');
+document.getElementById('taskInput').oninput=e=>{if(state.viewMode==='edit')state.draftName=e.target.value};
+document.getElementById('scriptInput').oninput=e=>{if(state.viewMode!=='edit')return;state.draftScript=e.target.value;const text=e.target.value;document.getElementById('canvasCaption').textContent=text?text.slice(0,32)+'…':'输入口播文案后预览字幕';const count=text.replace(/\s/g,'').length;document.getElementById('scriptStats').textContent=`共 ${count} 字，预计 ${Math.max(0,Math.ceil(count/4))} 秒`;state.scenes=[];renderScenesV26(true);refreshPreflightV26()};
+document.getElementById('backFromMaterial').onclick=()=>{state.digitalPage='video';switchDigitalPage('video')};
+document.getElementById('materialNext').onclick=nextCompose;
+document.getElementById('materialPrev').onclick=prevCompose;
+document.getElementById('materialRegen').onclick=regenerateCompose;
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>document.getElementById(b.dataset.close).classList.remove('show'));
+document.querySelectorAll('[data-avatar-tab]').forEach(b=>b.onclick=()=>{state.avatarTab=b.dataset.avatarTab;renderAvatarModal()});
+document.getElementById('avatarSearch').oninput=renderAvatarModal;
+document.getElementById('confirmAvatar').onclick=()=>{state.avatar=state.pendingAvatar;document.getElementById('avatarModal').classList.remove('show');renderDigital();toast('已选择 '+state.avatar.name)};
+document.getElementById('manageAvatarBtn').onclick=()=>goManageAsset('avatar');
+document.querySelectorAll('[data-voice-tab]').forEach(b=>b.onclick=()=>{state.voiceTab=b.dataset.voiceTab;renderVoiceModal()});
+document.getElementById('voiceSearch').oninput=renderVoiceModal;
+document.getElementById('confirmVoice').onclick=()=>{state.voice=state.pendingVoice;document.getElementById('voiceModal').classList.remove('show');renderDigital();toast('已选择 '+voices[state.voice].name)};
+document.getElementById('confirmLanguage').onclick=()=>{
+  if(state.viewMode==='history'){
+    const t=task();
+    const original=t.languages||['zh'];
+    const additions=state.pendingLanguages.filter(id=>!original.includes(id));
+    document.getElementById('languageModal').classList.remove('show');
+    if(!additions.length)return toast('语言版本未发生变化');
+    t.languages=[...original,...additions];
+    state.languages=[...t.languages];
+    renderDigital();
+    toast(`已添加 ${additions.length} 个语言版本`)
+  }else{
+    state.languages=[...state.pendingLanguages];
+    document.getElementById('languageModal').classList.remove('show');
+    renderDigital();
+    toast(`将生成 ${state.languages.length} 个语言版本`)
+  }
+};
+document.getElementById('manageVoiceBtn').onclick=()=>goManageAsset('voice');
+document.querySelectorAll('[data-asset-tab]').forEach(b=>b.onclick=()=>{state.assetTab=b.dataset.assetTab;state.assetSearch='';renderAssets()});
+document.getElementById('newAssetBtn').onclick=()=>openCreateAsset(state.assetTab);
+document.getElementById('assetSearch').oninput=e=>{state.assetSearch=e.target.value;renderAssets()};
+document.getElementById('assetRefreshBtn').onclick=()=>{renderAssets();toast('数字人管理列表已刷新')};
+document.getElementById('submitCreateAsset').onclick=submitCreateAsset;
+document.getElementById('previewUseBtn').onclick=()=>{if(!state.previewAsset)return;document.getElementById('assetPreviewModal').classList.remove('show');useAssetForCreation(state.previewAsset.type,state.previewAsset.id)};
+document.addEventListener('click',e=>{if(!e.target.closest('.picker-field'))closeInlinePickers()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeInlinePickers()});
+renderHistory();renderDigital();renderTool('template');document.getElementById('toolPanel').classList.remove('show');
+</script>
+</body>
+</html>
